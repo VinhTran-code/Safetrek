@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/screens/trip_setup_screen.dart';
-import 'package:safetrek_app/widgets/app_logo.dart';
 
 class HomeTabScreen extends StatelessWidget {
   const HomeTabScreen({super.key});
@@ -9,7 +8,9 @@ class HomeTabScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trang chủ', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Center(
+            child: Image.asset('assets/images/app_logo.png', height: 300)
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -18,13 +19,12 @@ class HomeTabScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            const AppLogo(size: 120),
-            const SizedBox(height: 40),
+            const SizedBox(height: 80),
             // Nút Bắt đầu chuyến đi
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                // CẬP NHẬT Ở ĐÂY
+
                 onPressed: () {
                   Navigator.push(
                     context,
