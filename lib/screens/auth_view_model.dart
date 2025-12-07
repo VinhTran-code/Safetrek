@@ -1,14 +1,14 @@
 // lib/features/auth/presentation/auth_view_model.dart
 // lib/screens/auth_view_model.dart
 import 'package:flutter/material.dart';
-import '../models/user.dart'; // Import model từ vị trí mới
-import '../services/auth_service.dart'; // Import service mới
-import '../utils/error/failures.dart'; // Import Failure để báo lỗi tùy chỉnh
-import 'auth_state.dart'; // State vẫn giữ nguyên, nằm cùng thư mục screens
+import '../models/user.dart';
+import '../services/auth_service.dart';
+
+import 'auth_state.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  // THAY ĐỔI LỚN 1: Không còn inject một đống UseCases nữa.
-  // Chỉ cần inject duy nhất AuthService.
+
+
   final AuthService authService;
 
   AuthViewModel({required this.authService});
@@ -24,8 +24,8 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // THAY ĐỔI LỚN 2: Cách viết hàm xử lý logic.
-  // Dùng try-catch thay vì result.fold() của dartz.
+
+
 
   Future<void> performLogin(String email, String password) async {
     _setState(AuthLoading());
@@ -101,7 +101,7 @@ class AuthViewModel extends ChangeNotifier {
 
   // Hàm tiện ích để chuyển Exception thành thông báo lỗi thân thiện
   String _mapExceptionToMessage(Object error) {
-    // Trong tương lai, bạn có thể check các loại custom exception ở đây
+
     // Ví dụ: if (error is NetworkException) return 'Lỗi mạng...';
     return error.toString().replaceAll('Exception: ', '');
   }

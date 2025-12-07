@@ -1,90 +1,137 @@
-# SafeTrek - Ứng dụng An toàn Cá nhân (Personal Safety App)
+# SafeTrek - Trợ lý Giám sát An toàn Cá nhân
 
-SafeTrek là một ứng dụng di động được thiết kế để nâng cao sự an toàn cá nhân, đặc biệt hữu ích khi người dùng di chuyển một mình hoặc vào ban đêm. Ứng dụng cung cấp các tính năng cốt lõi như theo dõi hành trình, kích hoạt cảnh báo SOS khẩn cấp và các công cụ bảo vệ khác.
+## 1. Tổng quan Dự án
+[cite_start]"SafeTrek" là một ứng dụng di động được thiết kế như một "người bạn đồng hành ảo" để bảo vệ người dùng khi họ di chuyển một mình trong các tình huống tiềm ẩn rủi ro (ví dụ: đi bộ về nhà ban đêm, sử dụng dịch vụ gọi xe lạ, chạy bộ ở nơi vắng vẻ)[cite: 1].
 
-## 🚀 Tính năng nổi bật
+[cite_start]Ứng dụng hoạt động như một hệ thống giám sát chủ động, không chỉ đơn thuần là chia sẻ vị trí[cite: 2, 3]. [cite_start]Người dùng thiết lập một "hẹn giờ an toàn" cho chuyến đi của mình[cite: 3]. [cite_start]Nếu họ không xác nhận an toàn trước khi hết giờ, ứng dụng sẽ tự động gửi cảnh báo khẩn cấp (bao gồm vị trí cuối cùng và mức pin) đến danh sách liên lạc đã chọn[cite: 4].
 
-* **Bắt đầu chuyến đi an toàn:** Thiết lập điểm đến và thời gian dự kiến cho chuyến đi của bạn. Ứng dụng sẽ giám sát hành trình và cảnh báo nếu có bất thường.
-* **SOS Khẩn cấp:** Nút SOS lớn, dễ tiếp cận để gửi cảnh báo khẩn cấp ngay lập tức đến các liên hệ tin cậy của bạn.
-* **Giám sát hành trình (Đang phát triển):** Xem vị trí hiện tại của bạn trên bản đồ và trạng thái giám sát chuyến đi.
-* **Thông báo & Cảnh báo (Đang phát triển):** Nhận các thông báo quan trọng và cảnh báo an toàn.
-* **Quản lý Hồ sơ:** Xem và chỉnh sửa thông tin cá nhân, cài đặt tài khoản.
-* **Xác thực người dùng:** Đăng ký, đăng nhập, quên và đặt lại mật khẩu.
+## 2. Bối cảnh & Vấn đề
 
-## 📁 Cấu trúc Dự án
+### Hiện trạng
+[cite_start]Nỗi sợ hãi khi di chuyển một mình ở những nơi vắng vẻ hoặc vào ban đêm là một vấn đề thực tế, đặc biệt đối với phụ nữ và sinh viên[cite: 5]. Các giải pháp hiện tại có những hạn chế:
+* [cite_start]**Gọi điện thoại:** Gây bất tiện, tốn pin và không phải lúc nào người nghe cũng sẵn sàng[cite: 6, 7].
+* [cite_start]**Phản ứng trong tình huống khẩn cấp:** Việc thao tác trên điện thoại để gọi hoặc nhắn tin khi gặp nguy hiểm là quá chậm và có thể gây nguy hiểm thêm[cite: 8].
+* [cite_start]**Các ứng dụng chia sẻ vị trí:** Các ứng dụng như "Find My" thường bị động, chỉ cho biết vị trí mà không biết tình trạng an toàn của người dùng và không tự động cảnh báo khi có sự cố[cite: 9, 10, 11].
 
-Dự án này tuân theo cấu trúc **Phân tầng (Layered Architecture)** để đảm bảo sự rõ ràng, dễ bảo trì và mở rộng. Dưới đây là mô tả chi tiết các thư mục và file chính:
-### 🎯 Giải thích các Thư mục Chính
+### Cơ hội
+[cite_start]Xây dựng một hệ thống "Công tắc Người chết" (Dead Man's Switch) cho an toàn cá nhân[cite: 12]. [cite_start]Một ứng dụng tin cậy sẽ tự động gọi cứu hộ thay cho người dùng khi họ không thể tự làm điều đó[cite: 13].
 
-* ### `lib/main.dart`
-    * **Chức năng:** Điểm khởi chạy chính của ứng dụng. Nơi thiết lập các dependency injection (`GetIt`), cấu hình `MultiProvider` và chạy widget gốc (`MyApp`) của ứng dụng.
+## 3. Đối tượng Người dùng
 
-* ### `lib/injection_container.dart`
-    * **Chức năng:** Quản lý Dependency Injection (DI) sử dụng thư viện `GetIt`. Đăng ký các `Service` và `ViewModel` để chúng có thể được inject vào các phần khác của ứng dụng một cách dễ dàng và hiệu quả.
+* [cite_start]**Chân dung:** Những người thường xuyên di chuyển một mình trong các tình huống tiềm ẩn rủi ro, ví dụ: sinh viên đi học về khuya, người đi làm về muộn, người tập thể dục ở nơi vắng vẻ[cite: 15, 16].
+* [cite_start]**Nhu cầu:** Cần một lớp bảo vệ tự động, giảm bớt sự lo lắng và muốn có người biết hành trình của mình để hành động khi cần thiết[cite: 17, 18].
 
-* ### `lib/models/`
-    * **Chức năng:** Chứa các định nghĩa cấu trúc dữ liệu (Data Models/Entities) được sử dụng trong toàn bộ ứng dụng.
-        * `user.dart`: Định nghĩa cấu trúc dữ liệu của đối tượng người dùng (ID, email, fullName, v.v.), bao gồm các phương thức `fromJson`/`toJson` để chuyển đổi dữ liệu.
-        * `onboarding_page_content.dart`: Định nghĩa cấu trúc dữ liệu cho nội dung hiển thị trên mỗi trang của màn hình Onboarding (tiêu đề, mô tả, ảnh).
+## 4. Yêu cầu Chức năng Chính
 
-* ### `lib/services/`
-    * **Chức năng:** Chứa các **Service** chịu trách nhiệm xử lý logic nghiệp vụ và giao tiếp với các nguồn dữ liệu bên ngoài (như API backend hoặc mock data).
-        * `auth_service.dart`: Xử lý tất cả các hoạt động liên quan đến xác thực người dùng (đăng nhập, đăng ký, quên/đặt lại mật khẩu, đăng xuất) và quản lý trạng thái người dùng hiện tại (sử dụng mock data).
+[cite_start]Hệ thống cần đảm bảo các chức năng sau[cite: 19]:
 
-* ### `lib/screens/`
-    * **Chức năng:** Chứa tất cả các màn hình giao diện người dùng (UI) chính của ứng dụng, cùng với các thành phần quản lý trạng thái (`ViewModel`/`State`) đi kèm.
-        * `splash_screen.dart`: Màn hình khởi động, kiểm tra trạng thái đăng nhập và điều hướng phù hợp.
-        * `onboarding_screen.dart`: Màn hình giới thiệu ban đầu của ứng dụng.
-        * `login_screen.dart`: Màn hình đăng nhập.
-        * `register_screen.dart`: Màn hình đăng ký tài khoản mới.
-        * `forgot_password_screen.dart`: Màn hình yêu cầu đặt lại mật khẩu.
-        * `reset_password_screen.dart`: Màn hình cho phép người dùng đặt mật khẩu mới.
-        * `dashboard_screen.dart`: Màn hình chính sau khi đăng nhập, chứa `BottomNavigationBar` và quản lý các tab.
-        * `home_tab_screen.dart`: Tab Trang chủ, hiển thị trạng thái an toàn, nút "Bắt đầu chuyến đi mới" và nút "SOS Khẩn cấp".
-        * `trip_setup_screen.dart`: Màn hình cho phép người dùng thiết lập điểm đến và thời gian dự kiến cho chuyến đi an toàn mới.
-        * `safety_monitoring_tab_screen.dart`: (Giao diện) Tab giám sát an toàn.
-        * `alerts_tab_screen.dart`: (Giao diện) Tab hiển thị các thông báo và cảnh báo.
-        * `profile_tab_screen.dart`: Tab hồ sơ người dùng, cho phép xem và chỉnh sửa thông tin cá nhân, cài đặt tài khoản.
-        * `auth_view_model.dart`: Quản lý trạng thái liên quan đến xác thực (đăng nhập, đăng ký, lỗi, thành công) và giao tiếp với `AuthService`.
-        * `auth_state.dart`: Định nghĩa các class mô tả các trạng thái khác nhau của quá trình xác thực (ví dụ: `AuthLoading`, `AuthSuccess`).
+### Module "Giám sát Chuyến đi" (Trip Monitoring)
+* [cite_start]**Bắt đầu Chuyến đi:** Người dùng nhập điểm đến (tùy chọn) và thời gian dự kiến cho chuyến đi (ví dụ: 15 phút)[cite: 20, 21].
+* [cite_start]**Kích hoạt Hẹn giờ & Theo dõi:** Ứng dụng bắt đầu đếm ngược và âm thầm theo dõi vị trí GPS của người dùng[cite: 22].
+* [cite_start]**Xác nhận An toàn:** Người dùng xác nhận an toàn bằng mã PIN hoặc sinh trắc học trước khi hết giờ để kết thúc chuyến đi[cite: 23, 24].
 
-* ### `lib/utils/`
-    * **Chức năng:** Chứa các file tiện ích chung, hằng số cấu hình và các định nghĩa toàn cục cho ứng dụng.
-        * `theme.dart`: Định nghĩa bảng màu, kiểu chữ và các thuộc tính giao diện (ThemeData) của ứng dụng.
-        * `app_routes.dart`: Chứa các định nghĩa về tên đường dẫn (route names) để điều hướng giữa các màn hình.
-        * `api_constants.dart`: Lưu trữ các hằng số liên quan đến cấu hình API (URL cơ sở, endpoints, v.v.).
-        * `error/failures.dart`: Định nghĩa các class lỗi tùy chỉnh (ví dụ: `ServerFailure`, `NetworkFailure`) để xử lý lỗi một cách có cấu trúc.
+# Dự án: "Vệ Sĩ Ảo" (SafeTrek) – Trợ lý Giám sát An toàn Cá nhân
 
-* ### `lib/widgets/`
-    * **Chức năng:** (Hiện tại chưa có nhiều) Dành cho các widget Flutter nhỏ, có thể tái sử dụng trên nhiều màn hình để tránh trùng lặp code.
+## 1. Tổng quan Dự án (Project Overview)
 
-* ### `lib/data/`
-    * **Chức năng:** (Hiện tại trống) Có thể dùng để chứa dữ liệu mẫu (mock data) hoặc các tài nguyên dữ liệu cục bộ khác.
+"SafeTrek" là một ứng dụng di động hoạt động như một "người bạn đồng hành ảo" hay "vệ sĩ", được thiết kế để bảo vệ người dùng khi họ đang di chuyển một mình (ví dụ: đi bộ về nhà lúc trời tối, đi xe ôm/taxi lạ, chạy bộ ở nơi vắng vẻ).
 
-## 🛠️ Công nghệ sử dụng
+Ứng dụng này không chỉ đơn thuần là chia sẻ vị trí (như "Find My"). Nó là một hệ thống giám sát chủ động. Người dùng đặt một "hẹn giờ an toàn" cho chuyến đi của mình. Nếu họ không xác nhận "Tôi đã đến nơi an toàn" trước khi hết giờ, ứng dụng sẽ tự động gửi cảnh báo khẩn cấp (vị trí cuối cùng, mức pin) đến danh sách liên lạc khẩn cấp đã được cài đặt sẵn.
 
-* **Flutter:** Framework phát triển UI
-* **Provider:** Quản lý trạng thái
-* **GetIt:** Dependency Injection
-* **Dio:** HTTP Client
-* **shared_preferences:** Lưu trữ dữ liệu cục bộ
-* **equatable:** Giúp so sánh các đối tượng dễ dàng
-* ... và các package tiêu chuẩn khác của Flutter.
+## 2. Bối cảnh & Vấn đề (Business Problem & Context)
 
-## 🚀 Cài đặt và Chạy ứng dụng
+**Hiện trạng (Current State):**  
+Nỗi sợ hãi khi phải đi một mình ở nơi vắng vẻ hoặc vào ban đêm là có thật, đặc biệt là với phụ nữ và sinh viên.
 
-1.  **Clone repository:**
-    ```bash
-    git clone [URL_REPOSITORY_CỦA_BẠN]
-    cd safetrek_app
-    ```
-2.  **Tải các dependency:**
-    ```bash
-    flutter pub get
-    ```
-3.  **Chạy ứng dụng:**
-    ```bash
-    flutter run
-    ```
+1. **Sự bất tiện của việc "gọi điện thoại":**  
+   Nhiều người (đặc biệt là sinh viên nữ) có thói quen gọi điện thoại cho bạn bè/người thân và giữ máy suốt quãng đường đi bộ về nhà.  
+   **Vấn đề:** Việc này bất tiện cho cả hai bên, tốn pin, và không phải lúc nào người nghe cũng rảnh.
 
----
+2. **Phản ứng chậm trễ khi gặp nguy hiểm:**  
+   Trong tình huống khẩn cấp (bị theo dõi, tấn công), việc mở điện thoại, tìm danh bạ, gõ tin nhắn hoặc gọi điện là quá chậm và có thể gây nguy hiểm thêm.
+
+3. **Các ứng dụng "Find My" quá bị động:**  
+   Các ứng dụng như Zalo, Find My (Apple) chỉ cho phép người khác xem bạn ở đâu.  
+   Chúng không thể biết bạn có an toàn hay không, và cũng không tự động cảnh báo khi có vấn đề.
+
+**Cơ hội (Opportunity):**  
+Xây dựng một hệ thống "Công tắc Người chết" (Dead Man's Switch) cho sự an toàn cá nhân.  
+Một ứng dụng tin cậy sẽ tự động gọi cứu hộ thay cho bạn nếu bạn không thể.
+
+## 3. Đối tượng Người dùng (Target Audience)
+
+**Persona: "Người di chuyển Một mình"**
+
+- Sinh viên nữ đi bộ từ trạm xe buýt về phòng trọ lúc 10h tối.
+- Người đi làm tăng ca bắt taxi về nhà lúc nửa đêm.
+- Người chạy bộ buổi sáng sớm ở công viên vắng.
+
+**Nhu cầu:** Một lớp bảo vệ tự động.  
+**Tâm lý:** Muốn có ai đó biết hành trình của mình và sẽ hành động nếu có chuyện.
+
+## 4. Yêu cầu Chức năng (Functional Requirements - FRs)
+
+### FR1: Giám sát Chuyến đi (Trip Monitoring)
+
+- **FR1.1: Bắt đầu Chuyến đi:**
+    - Đích đến (tùy chọn).
+    - Thời gian dự kiến (ví dụ: 15 phút).
+
+- **FR1.2: Kích hoạt Hẹn giờ:**  
+  Ứng dụng đếm ngược thời gian và theo dõi vị trí GPS nền.
+
+- **FR1.3: Xác nhận An toàn (Check-in):**  
+  Người dùng nhập PIN hoặc dùng sinh trắc học để xác nhận đã đến nơi.
+
+### FR2: Cảnh báo Khẩn cấp Tự động (Auto Alert)
+
+- **FR2.1:** Nếu hẹn giờ về 0 mà không có Check-in, báo động kích hoạt.
+- **FR2.2:** Gửi cảnh báo đến danh bạ khẩn cấp.
+- **FR2.3:** Nội dung cảnh báo gồm:
+    - Tên người dùng
+    - Thời gian bắt đầu chuyến đi
+    - Vị trí cuối
+    - Link Google Maps
+    - Mức pin còn lại
+
+### FR3: Nút Hoảng loạn (Panic Button)
+
+- **FR3.1:** Một nút bấm gửi cảnh báo ngay lập tức.
+- **FR3.2:** Có thể kích hoạt bằng cử chỉ ẩn, như bấm nút nguồn 5 lần.
+
+### FR4: Mã PIN Bị ép buộc (Duress PIN)
+
+- **FR4.1:** Có 2 mã PIN
+    - PIN an toàn
+    - PIN bị ép buộc
+
+- **FR4.2:** Khi nhập PIN bị ép buộc:
+    - Giao diện giả vờ tắt cảnh báo
+    - Ngầm gửi cảnh báo khẩn
+
+### FR5: Quản lý Liên lạc Khẩn cấp (Guardian List)
+
+- **FR5.1:** Chọn 3–5 người làm người bảo vệ.
+- **FR5.2:** Các liên lạc này phải chấp nhận lời mời.
+
+## 5. Yêu cầu Phi chức năng (Non-Functional Requirements - NFRs)
+
+- **NFR1: Độ tin cậy:**  
+  Ứng dụng phải hoạt động nền, gửi cảnh báo kể cả khi mạng yếu.
+
+- **NFR2: Tối ưu pin:**  
+  GPS nền không được gây hao pin mạnh.
+
+- **NFR3: Dễ sử dụng:**  
+  Tác vụ như bắt đầu chuyến đi hay bấm panic phải cực nhanh.
+
+- **NFR4: Độ chính xác:**  
+  GPS cần đạt độ chính xác cao.
+
+## 6. Ràng buộc & Giả định (Constraints & Assumptions)
+
+- **Ràng buộc 1:** Ứng dụng phụ thuộc quyền OS (GPS, chạy nền, SMS).
+- **Ràng buộc 2:** Không thay thế gọi 113.
+- **Giả định 1:** Người dùng có smartphone với GPS và internet hoặc SMS.
+- **Giả định 2:** Người bảo vệ là người đáng tin và sẽ phản hồi cảnh báo.
+

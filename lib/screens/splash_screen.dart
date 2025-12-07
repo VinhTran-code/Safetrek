@@ -17,51 +17,54 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Thời gian hiển thị Splash Screen là 5 giây
+    // Chuyển việc điều hướng vào trong Consumer để xử lý logic bất đồng bộ
+    // Dòng này có thể xóa đi hoặc giữ lại như một fallback
     Future.delayed(const Duration(seconds: 5), () {
-      // Sau 5 giây, chuyển đến Onboarding Screen
-      Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+      if (mounted) { // Kiểm tra widget còn tồn tại
+         // Chỉ điều hướng nếu chưa có trạng thái đăng nhập nào được xử lý
+        final viewModel = Provider.of<AuthViewModel>(context, listen: false);
+        if (viewModel.state is AuthInitial) {
+           Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+        }
+      }
     });
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<AuthViewModel>( // Bọc bằng Consumer để lắng nghe trạng thái
+      body: Consumer<AuthViewModel>( 
         builder: (context, viewModel, child) {
-          // Lắng nghe các trạng thái AuthSuccess, AuthLoggedOut, AuthError
           if (viewModel.state is AuthSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-              viewModel.resetState(); // Reset trạng thái sau khi điều hướng
+              viewModel.resetState(); 
             });
           } else if (viewModel.state is AuthLoggedOut) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-              viewModel.resetState(); // Reset trạng thái sau khi điều hướng
+              viewModel.resetState(); 
             });
           } else if (viewModel.state is AuthError) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              // Có lỗi xảy ra khi kiểm tra đăng nhập (ví dụ: token lỗi)
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Lỗi kiểm tra đăng nhập: ${(viewModel.state as AuthError).message}')),
               );
-              Navigator.pushReplacementNamed(context, AppRoutes.onboarding); // Vẫn chuyển về Onboarding
+              Navigator.pushReplacementNamed(context, AppRoutes.onboarding); 
               viewModel.resetState();
             });
           }
 
-          // Hiển thị giao diện Splash trong khi đang kiểm tra
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // *** TĂNG KÍCH THƯỚC LOGO Ở ĐÂY ***
                 Image.asset(
                   'assets/images/app_logo.png',
-                  height: 150,
+                  height: 200, // Tăng từ 150 lên 200
                 ),
-                const SizedBox(height: 24),
-                const SizedBox(height: 32),
-                const CircularProgressIndicator(), // Hiển thị loading indicator
+                const SizedBox(height: 48),
+                const CircularProgressIndicator(),
               ],
             ),
           );

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/utils/app_routes.dart';
 import 'package:provider/provider.dart';
+// *** SỬA LỖI IMPORT Ở ĐÂY ***
 import 'package:safetrek_app/screens/auth_state.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
 
@@ -31,31 +32,25 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text,
         _passwordController.text,
       );
-      // Logic điều hướng và hiển thị thông báo sẽ được xử lý trong `_buildBody` bằng Consumer
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<AuthViewModel>( // Bọc phần body bằng Consumer
+      body: Consumer<AuthViewModel>(
         builder: (context, viewModel, child) {
-          // Lắng nghe trạng thái và điều hướng/hiển thị thông báo
-          if (viewModel.state is AuthLoading) {
-            // Có thể hiển thị một loading indicator toàn màn hình
-            // Ở đây, chúng ta sẽ xử lý loading trong chính nút đăng nhập
-          } else if (viewModel.state is AuthSuccess) {
+          if (viewModel.state is AuthSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              // Đảm bảo điều hướng chỉ xảy ra một lần sau khi build
               Navigator.pushNamedAndRemoveUntil(context, AppRoutes.dashboard, (route) => false);
-              viewModel.resetState(); // Reset trạng thái để tránh điều hướng lại
+              viewModel.resetState();
             });
           } else if (viewModel.state is AuthError) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text((viewModel.state as AuthError).message)),
               );
-              viewModel.resetState(); // Reset trạng thái để có thể thử lại
+              viewModel.resetState();
             });
           }
 
@@ -67,10 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo hoặc tiêu đề
                     Image.asset(
-                      'assets/images/logo.png', // Đảm bảo bạn có logo.png trong assets/images
-                      height: 120,
+                      'assets/images/app_logo.png',
+                      height: 180,
                     ),
                     const SizedBox(height: 48),
 
@@ -83,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Input Email
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -104,7 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Input Mật khẩu
                     TextFormField(
                       controller: _passwordController,
                       obscureText: true,
@@ -125,7 +117,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Quên mật khẩu
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -137,9 +128,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Nút Đăng nhập
                     ElevatedButton(
-                      onPressed: (viewModel.state is AuthLoading) ? null : () => _login(viewModel), // Vô hiệu hóa khi đang loading
+                      onPressed: (viewModel.state is AuthLoading) ? null : () => _login(viewModel),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: Theme.of(context).primaryColor,
@@ -148,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       child: (viewModel.state is AuthLoading)
-                          ? const CircularProgressIndicator(color: Colors.white) // Hiển thị loading
+                          ? const CircularProgressIndicator(color: Colors.white)
                           : const Text(
                         'ĐĂNG NHẬP',
                         style: TextStyle(fontSize: 18, color: Colors.white),
@@ -156,7 +146,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Chưa có tài khoản? Đăng ký
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

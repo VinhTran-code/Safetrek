@@ -17,22 +17,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPageContent> pages = [
     OnboardingPageContent(
-      image: 'assets/images/onboarding_1.jpg',
-      title: 'Người bạn đồng hành ảo, luôn bên bạn.',
+      image: 'assets/images/onboarding_1.png',
+      title: ' Không Bao Giờ Phải Đi Một Mình',
       description:
-      'SafeTrek giám sát hành trình của bạn và tự động cảnh báo khi bạn không thể.',
+      'SafeTrek là vệ sĩ ảo âm thầm theo dõi từng bước chân của bạn 24/7. Dù là đêm khuya hay đường vắng, bạn luôn có người đồng hành.',
     ),
     OnboardingPageContent(
-      image: 'assets/images/onboarding_2.jpg',
-      title: 'Giám sát tự động, cảnh báo tức thì.',
+      image: 'assets/images/onboarding_2.png',
+      title: ' Nếu Bạn Không Thể Gọi Cứu Hộ...',
       description:
-      'Đặt hẹn giờ an toàn cho chuyến đi. Nếu không check-in, cảnh báo sẽ được gửi.',
+      '...Chúng tôi sẽ làm thay bạn. Đặt hẹn giờ cho chuyến đi, nếu bạn không xác nhận an toàn khi hết giờ, SafeTrek sẽ tự động gửi vị trí và báo động cho người thân.',
     ),
     OnboardingPageContent(
-      image: 'assets/images/onboarding_3.jpg',
-      title: 'Bảo vệ bạn mọi lúc, mọi nơi.',
+      image: 'assets/images/onboarding_3.png',
+      title: 'Lớp Bảo Vệ Vô Hình',
       description:
-      'Nút Hoảng loạn và PIN bị ép buộc giúp bạn an toàn trong mọi tình huống.',
+      'Bị ép buộc tắt ứng dụng? Hãy nhập Mã PIN Giả. Ứng dụng sẽ giả vờ tắt nhưng thực chất vẫn đang âm thầm gửi tín hiệu cầu cứu khẩn cấp.',
     ),
   ];
 
@@ -43,8 +43,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   _navigateToLogin() {
-    // Hiện tại chúng ta sẽ chuyển về màn hình demo mặc định của Flutter
-    // Sau này khi có màn hình Login, chúng ta sẽ đổi dòng này.
     Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 
@@ -114,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_currentPage == pages.length - 1) {
-                        _navigateToLogin(); // Chuyển đến màn hình Đăng nhập (tạm thời là màn hình demo)
+                        _navigateToLogin();
                       } else {
                         _pageController.nextPage(
                           duration: const Duration(milliseconds: 300),
