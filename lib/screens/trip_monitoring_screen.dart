@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/widgets/circular_timer_view.dart';
+import 'package:safetrek_app/screens/submitpin.dart';
 
 class TripMonitoringScreen extends StatelessWidget {
   final int tripDurationInSeconds;
@@ -52,7 +53,10 @@ class TripMonitoringScreen extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       // TODO: Logic xác nhận an toàn
-                      Navigator.pop(context); // Tạm thời quay về
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SubmitPinScreen()),
+                      );
                     },
                     icon: const Icon(Icons.check_circle_outline),
                     label: const Text('Tôi đã an toàn'),
