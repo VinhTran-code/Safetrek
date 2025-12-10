@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/screens/trip_setup_screen.dart';
+import 'package:safetrek_app/utils/app_routes.dart';
 
 class HomeTabScreen extends StatelessWidget {
   const HomeTabScreen({super.key});
@@ -46,7 +47,7 @@ class HomeTabScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // TODO: Implement Panic Button logic
+                  Navigator.pushNamed(context, AppRoutes.panicAlert);
                 },
                 icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
                 label: const Text('NÚT HOẢNG LOẠN', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -88,7 +89,7 @@ class HomeTabScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 10,
           )
@@ -115,7 +116,7 @@ class HomeTabScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(15.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 10,
           )
