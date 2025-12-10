@@ -10,5 +10,6 @@ class AppRoutes {
 
   // Home/Dashboard routes
   static const String dashboard = '/dashboard';
+  static const String panicAlert = '/panicAlert';
 // Các tab không cần route riêng vì chúng nằm trong Dashboard
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/widgets/circular_timer_view.dart';
+import 'package:safetrek_app/utils/app_routes.dart';
 import 'package:safetrek_app/screens/submitpin.dart';
+
 
 class TripMonitoringScreen extends StatelessWidget {
   final int tripDurationInSeconds;
@@ -71,7 +73,7 @@ class TripMonitoringScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      // TODO: Logic nút hoảng loạn
+                      Navigator.pushNamed(context, AppRoutes.panicAlert);
                     },
                     icon: const Icon(Icons.warning_amber_rounded),
                     label: const Text('NÚT HOẢNG LOẠN'),
@@ -107,7 +109,7 @@ class TripMonitoringScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isHighlighted ? Theme.of(context).primaryColor.withOpacity(0.1) : Colors.grey.shade100,
+        color: isHighlighted ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(

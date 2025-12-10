@@ -1,9 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Import các file từ cấu trúc mới
-import 'package:safetrek_app/utils/api_constants.dart'; // Đảm bảo bạn đã chuyển file này vào utils
+import 'package:safetrek_app/utils/api_constants.dart';
 import 'package:safetrek_app/services/auth_service.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
 final sl = GetIt.instance;
