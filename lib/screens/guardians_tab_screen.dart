@@ -1,10 +1,35 @@
 import 'package:flutter/material.dart';
 
-class GuardiansTabScreen extends StatelessWidget {
+// 1. Chuyển thành StatefulWidget
+class GuardiansTabScreen extends StatefulWidget {
   const GuardiansTabScreen({super.key});
 
   @override
+  State<GuardiansTabScreen> createState() => _GuardiansTabScreenState();
+}
+
+class _GuardiansTabScreenState extends State<GuardiansTabScreen> {
+
+  // Hàm hiển thị pop-up thêm người bảo vệ
+  void _showAddGuardianModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Cho phép modal chiếm nhiều không gian hơn
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        // Trả về widget AddGuardianModal để xây dựng giao diện pop-up
+        return const _AddGuardianModal();
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Lưu ý: Theme.of(context).primaryColor được dùng làm màu chủ đạo (màu xanh lá)
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Người bảo vệ', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -25,26 +50,25 @@ class GuardiansTabScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                color: primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Text(
                 'Khi có cảnh báo, tất cả người bảo vệ sẽ nhận được tin nhắn SMS, thông báo push và email với vị trí GPS của bạn.',
-                style: TextStyle(color: Theme.of(context).primaryColor, height: 1.5),
+                style: TextStyle(color: primaryColor, height: 1.5),
               ),
             ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Add guardian logic
-                },
+                // Gắn hàm _showAddGuardianModal vào onPressed
+                onPressed: _showAddGuardianModal,
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text('Thêm người bảo vệ', style: TextStyle(color: Colors.white, fontSize: 18)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: primaryColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
               ),
@@ -95,7 +119,7 @@ class GuardiansTabScreen extends StatelessWidget {
                   const Text('Người bảo vệ phải xác nhận đồng ý nhận cảnh báo'),
                   const SizedBox(height: 8),
                   const Text('Chọn người đáng tin cậy và có thể liên lạc 24/7'),
-                   const SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   const Text('Nên có ít nhất 3 người bảo vệ'),
                 ],
               ),
@@ -108,14 +132,14 @@ class GuardiansTabScreen extends StatelessWidget {
   }
 
   Widget _buildGuardianCard(
-    BuildContext context, {
-    required String initial,
-    required String name,
-    required String relation,
-    required String phone,
-    required String email,
-    required bool isVerified,
-  }) {
+      BuildContext context, {
+        required String initial,
+        required String name,
+        required String relation,
+        required String phone,
+        required String email,
+        required bool isVerified,
+      }) {
     return Card(
       elevation: 2,
       shadowColor: Colors.grey.withOpacity(0.2),
@@ -189,6 +213,163 @@ class GuardiansTabScreen extends StatelessWidget {
         const SizedBox(width: 12),
         Text(text, style: TextStyle(color: Colors.grey.shade700)),
       ],
+    );
+  }
+}
+
+// Widget riêng cho pop-up thêm người bảo vệ
+class _AddGuardianModal extends StatefulWidget {
+  const _AddGuardianModal();
+
+  @override
+  State<_AddGuardianModal> createState() => _AddGuardianModalState();
+}
+
+class _AddGuardianModalState extends State<_AddGuardianModal> {
+  // Biến tạm để mô phỏng việc chọn quan hệ
+  String _selectedRelation = 'Bố/Mẹ';
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+
+    // Sử dụng Padding + MediaQuery.of(context).viewInsets.bottom để bàn phím không che form
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 24,
+        left: 24,
+        right: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Thêm người bảo vệ',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Tên người bảo vệ
+            const Text('Tên người bảo vệ', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            TextField(
+              decoration: _buildInputDecoration('Ví dụ: Nguyễn Văn A'),
+            ),
+            const SizedBox(height: 16),
+
+            // Số điện thoại
+            const Text('Số điện thoại người bảo vệ', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            TextField(
+              keyboardType: TextInputType.phone,
+              decoration: _buildInputDecoration('Ví dụ: 0123456789'),
+            ),
+            const SizedBox(height: 16),
+
+            // Email
+            const Text('email người bảo vệ', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            TextField(
+              keyboardType: TextInputType.emailAddress,
+              decoration: _buildInputDecoration('Ví dụ: nguyenvana@email.com'),
+            ),
+            const SizedBox(height: 24),
+
+            // Dạng người bảo vệ (Relation buttons)
+            const Text('Dạng người bảo vệ', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                _buildRelationButton('Bố/Mẹ', primaryColor),
+                const SizedBox(width: 10),
+                _buildRelationButton('Anh/Chị', primaryColor),
+                const SizedBox(width: 10),
+                _buildRelationButton('Khác', primaryColor),
+              ],
+            ),
+            const SizedBox(height: 30),
+
+            // Nút Thêm
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // TODO: Thêm logic lưu thông tin người bảo vệ
+                  Navigator.pop(context); // Đóng pop-up sau khi thêm
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+                child: const Text('Thêm người bảo vệ', style: TextStyle(color: Colors.white, fontSize: 18)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper function cho InputDecoration của TextField
+  InputDecoration _buildInputDecoration(String hintText) {
+    return InputDecoration(
+      hintText: hintText,
+      hintStyle: const TextStyle(color: Colors.grey),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+      ),
+    );
+  }
+
+  // Helper function cho nút chọn quan hệ
+  Widget _buildRelationButton(String text, Color primaryColor) {
+    final isSelected = _selectedRelation == text;
+    return Expanded(
+      child: OutlinedButton(
+        onPressed: () {
+          setState(() {
+            _selectedRelation = text;
+          });
+        },
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          backgroundColor: isSelected ? primaryColor.withOpacity(0.1) : Colors.white,
+          side: BorderSide(
+            color: isSelected ? primaryColor : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isSelected ? primaryColor : Colors.black,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
     );
   }
 }
