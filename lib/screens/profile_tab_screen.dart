@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
-import 'package:safetrek_app/screens/change_password_screen.dart'; // Added import for ChangePasswordScreen
-
+import 'package:safetrek_app/screens/safe_pin.dart';
 
 class ProfileTabScreen extends StatefulWidget {
   const ProfileTabScreen({super.key});
@@ -15,6 +14,15 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   bool _notificationsEnabled = true;
   bool _gpsEnabled = true;
   bool _backgroundRunEnabled = true;
+
+  void _navigateToSafePinSetup() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SafePinSetupScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +52,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               iconColor: Colors.green,
               title: 'Mã PIN an toàn',
               subtitle: '****',
-              onTap: () {},
+              onTap: _navigateToSafePinSetup,
             ),
             _buildSettingCard(
               icon: Icons.phonelink_lock_outlined,
