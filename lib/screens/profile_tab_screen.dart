@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+import 'package:safetrek_app/screens/change_password_screen.dart'; // Added import for ChangePasswordScreen
 
 
 class ProfileTabScreen extends StatefulWidget {
@@ -97,7 +98,12 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               iconColor: Colors.grey,
               title: 'Đổi mật khẩu',
               subtitle: '********',
-              onTap: (){}
+              onTap: () { // Modified onTap to navigate to ChangePasswordScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+                );
+              }
             ),
             const SizedBox(height: 20),
             SizedBox(
