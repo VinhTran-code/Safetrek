@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+import 'package:safetrek_app/screens/change_password_screen.dart';
 import 'package:safetrek_app/screens/safe_pin.dart';
+import 'package:safetrek_app/screens/force_pin.dart';
 
 class ProfileTabScreen extends StatefulWidget {
   const ProfileTabScreen({super.key});
@@ -15,11 +17,21 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   bool _gpsEnabled = true;
   bool _backgroundRunEnabled = true;
 
+  //điều hướng tới màn hình đổi mã PIN an toàn
   void _navigateToSafePinSetup() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const SafePinSetupScreen(),
+      ),
+    );
+  }
+  //điều hướng tới màn hình đổi mã PIN ép buộc
+  void _navigateToForcePinSetup() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ForcePinSetupScreen(),
       ),
     );
   }
@@ -59,7 +71,7 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               iconColor: Colors.red,
               title: 'Mã PIN bị ép buộc',
               subtitle: '****',
-              onTap: () {},
+              onTap: _navigateToForcePinSetup,
             ),
             _buildInfoBox(
               icon: Icons.info_outline,
