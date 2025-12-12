@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SafePinSetupScreen extends StatefulWidget {
-  const SafePinSetupScreen({super.key});
+class ForcePinSetupScreen extends StatefulWidget {
+  const ForcePinSetupScreen({super.key});
 
   @override
-  State<SafePinSetupScreen> createState() => _SafePinSetupScreenState();
+  State<ForcePinSetupScreen> createState() => _ForcePinSetupScreenState();
 }
 
-class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
+class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
   // Biến lưu trữ mã PIN mới đang được nhập
   String _newPin = '';
   // Độ dài PIN dự kiến (4 chữ số)
@@ -46,7 +46,7 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
     // THỰC TẾ: Bạn sẽ lưu trữ PIN này vào Shared Preferences/Secure Storage
     // hoặc chuyển sang màn hình "Xác nhận lại PIN" (Confirm Pin)
 
-    debugPrint('Mã PIN an toàn mới đã được thiết lập: $pin');
+    debugPrint('Mã PIN ép buộc mới đã được thiết lập: $pin');
 
     //Thông báo thay đổi
     ScaffoldMessenger.of(context).showSnackBar(
@@ -143,7 +143,7 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
           children: <Widget>[
             // Phần tiêu đề (Đồng bộ kích thước)
             Text(
-              'Thiết lập PIN An toàn',
+              'Thiết lập PIN Ép buộc',
               style: TextStyle(
                 color: _textColor,
                 fontSize: 24.0,
@@ -152,7 +152,7 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
             ),
             const SizedBox(height: 4.0),
             Text(
-              'Mã PIN này dùng để check-in bình thường',
+              'Mã PIN này dùng khi bạn bị đe doạ',
               style: TextStyle(
                 color: _textColor.withOpacity(0.7),
                 fontSize: 14.0,
