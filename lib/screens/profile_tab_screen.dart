@@ -106,7 +106,12 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
               iconColor: Colors.grey,
               title: 'Đổi mật khẩu',
               subtitle: '********',
-              onTap: (){}
+              onTap: () { // Modified onTap to navigate to ChangePasswordScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+                );
+              }
             ),
             const SizedBox(height: 20),
             SizedBox(
