@@ -11,6 +11,7 @@ import 'package:safetrek_app/screens/forgot_password_screen.dart';
 import 'package:safetrek_app/screens/reset_password_screen.dart';
 import 'package:safetrek_app/screens/dashboard_screen.dart';
 import 'package:safetrek_app/screens/panic_alert_screen.dart';
+import 'package:safetrek_app/screens/initial_setup/initial_setup_welcome_screen.dart';
 import 'package:safetrek_app/injection_container.dart' as di;
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.resetPassword: (context) => const ResetPasswordScreen(),
         AppRoutes.dashboard: (context) => const DashboardScreen(),
         AppRoutes.panicAlert: (context) => const PanicAlertScreen(),
+        '/initialSetup': (context) => const InitialSetupWelcomeScreen(),
       },
       debugShowCheckedModeBanner: false, // Ẩn banner debug
     );
