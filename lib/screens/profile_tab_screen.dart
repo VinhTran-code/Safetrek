@@ -145,6 +145,50 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             ),
 
             const SizedBox(height: 20),
+
+            // Nút test Initial Setup (CHỈ ĐỂ DEV TEST - XÓA KHI ĐI PRODUCTION)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.blue.withOpacity(0.3)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.bug_report, color: Colors.blue.shade700, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        '🧪 Test Mode - Dev Only',
+                        style: TextStyle(
+                          color: Colors.blue.shade900,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/initialSetup');
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blue,
+                        side: const BorderSide(color: Colors.blue),
+                      ),
+                      icon: const Icon(Icons.play_arrow, size: 20),
+                      label: const Text('Test Initial Setup Flow'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
             _buildSectionHeader('Về ứng dụng'),
             Container(
               padding: const EdgeInsets.all(16),
