@@ -123,33 +123,6 @@ class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
     }
   }
 
-  // CHỈ ĐỂ TEST UI - XÓA KHI ĐI PRODUCTION
-  void _skipForTesting() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('🧪 Test Mode'),
-        content: const Text(
-          'Bạn đang bỏ qua kiểm tra quyền để test UI.\n\n'
-          'Tính năng này CHỈ dùng để DEV test, sẽ bị XÓA khi đi production.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _onComplete();
-            },
-            child: const Text('OK, tiếp tục'),
-          ),
-        ],
-      ),
-    );
-  }
-
   bool get _allPermissionsGranted {
     return _locationGranted && _notificationGranted && _backgroundGranted;
   }
@@ -343,43 +316,6 @@ class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
                   ),
                 ),
 
-                // Skip button for testing (CHỈ ĐỂ DEV - XÓA KHI ĐI PRODUCTION)
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.bug_report, size: 16, color: Colors.grey.shade600),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Dev Test Mode',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      TextButton(
-                        onPressed: _skipForTesting,
-                        child: const Text(
-                          'Bỏ qua (chỉ để test UI)',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
