@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/screens/initial_setup/setup_permissions_screen.dart';
+import 'package:safetrek_app/services/pin_service.dart';
+import 'package:safetrek_app/injection_container.dart' as di;
 
 /// Bước 2: Thiết lập mã PIN bị ép buộc
 /// User phải nhập PIN khác với PIN an toàn
@@ -43,21 +45,45 @@ class _SetupDuressPinScreenState extends State<SetupDuressPinScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _saving = true);
-    await Future.delayed(const Duration(milliseconds: 500));
 
-    // TODO: Lưu PIN bị ép buộc vào secure storage
-    // await SecureStorage.saveDuressPin(_pinController.text);
-
-    setState(() => _saving = false);
-
-    if (mounted) {
-      // Chuyển sang bước 3: Hướng dẫn cấp quyền
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SetupPermissionsScreen(),
-        ),
+    try {
+      // Gọi API để setup PINs
+      final pinService = di.sl<PinService>();
+      await pinService.setupPins(
+        safetyPin: widget.safePinToCompare,
+        duressPin: _pinController.text,
       );
+
+      setState(() => _saving = false);
+
+      if (mounted) {
+        // Hiển thị thông báo thành công
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Thiết lập mã PIN thành công!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Chuyển sang bước 3: Hướng dẫn cấp quyền
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SetupPermissionsScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _saving = false);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

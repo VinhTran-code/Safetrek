@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.resetPassword: (context) => const ResetPasswordScreen(),
         AppRoutes.dashboard: (context) => const DashboardScreen(),
         AppRoutes.panicAlert: (context) => const PanicAlertScreen(),
-        '/initialSetup': (context) => const InitialSetupWelcomeScreen(),
+        AppRoutes.initialSetup: (context) => const InitialSetupWelcomeScreen(),
       },
       debugShowCheckedModeBanner: false, // Ẩn banner debug
     );

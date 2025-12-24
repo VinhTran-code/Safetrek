@@ -8,6 +8,9 @@ class AppRoutes {
   static const String forgotPassword = '/forgotPassword';
   static const String resetPassword = '/resetPassword';
 
+  // Initial Setup
+  static const String initialSetup = '/initialSetup';
+
   // Home/Dashboard routes
   static const String dashboard = '/dashboard';
   static const String panicAlert = '/panicAlert';
