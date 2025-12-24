@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+lib/screens/initial_setup/README.md
+lib/screens/initial_setup/SUMMARY.md
+lib/services/google_places_service.dart
+*.md
+!README.md
+lib/**/README.md
+

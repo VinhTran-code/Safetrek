@@ -27,25 +27,47 @@ class AuthViewModel extends ChangeNotifier {
 
 
 
-  Future<void> performLogin(String email, String password) async {
+  Future<void> performLogin(String phoneNumber, String password) async {
     _setState(AuthLoading());
     try {
-      // Gọi trực tiếp service
-      final user = await authService.login(email, password);
+      // Gọi trực tiếp service với phoneNumber
+      final user = await authService.login(
+        phoneNumber: phoneNumber,
+        password: password,
+      );
       _setState(AuthSuccess(user));
     } catch (e) {
-      // Bắt lỗi (Exception) từ Service và chuyển thành State lỗi
-      // Ở đây chúng ta tạm dùng AuthFailure chung cho đơn giản
       _setState(AuthError(_mapExceptionToMessage(e)));
     }
   }
 
-  Future<void> performRegister(String email, String password) async {
+  Future<void> performRegister({
+    required String fullName,
+    required String phoneNumber,
+    String? email,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    print('🔄 Starting registration...');
+    print('📝 Full Name: $fullName');
+    print('📝 Phone: $phoneNumber');
+    print('📝 Email: $email');
+
     _setState(AuthLoading());
     try {
-      final user = await authService.register(email, password);
+      final user = await authService.register(
+        fullName: fullName,
+        phoneNumber: phoneNumber,
+        email: email,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      );
+      print('✅ Registration successful!');
+      print('👤 User: ${user.fullName}');
       _setState(AuthSuccess(user));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Registration error: $e');
+      print('📍 Stack trace: $stackTrace');
       _setState(AuthError(_mapExceptionToMessage(e)));
     }
   }
@@ -83,6 +105,9 @@ class AuthViewModel extends ChangeNotifier {
   Future<void> checkIfLoggedIn() async {
     _setState(AuthLoading());
     try {
+      // Init để load user từ storage
+      await authService.init();
+
       final isLoggedIn = await authService.checkLoginStatus();
       if (isLoggedIn && authService.currentUser != null) {
         _setState(AuthSuccess(authService.currentUser!));

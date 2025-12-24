@@ -1,34 +1,48 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:safetrek_app/utils/api_constants.dart';
+import 'package:safetrek_app/core/constants/api_constants.dart';
+import 'package:safetrek_app/core/network/api_client.dart';
 import 'package:safetrek_app/services/auth_service.dart';
+import 'package:safetrek_app/services/pin_service.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  //! Features - Auth
-  // ViewModels
-  // Đăng ký AuthViewModel mới, nó chỉ cần authService
-  sl.registerFactory(() => AuthViewModel(authService: sl()));
-
-  // Services
-  // Đăng ký AuthService mới, nó cần Dio
-  sl.registerLazySingleton<AuthService>(() => AuthService(dio: sl()));
-
+  //! External - Phải init trước
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
 
   //! Core
-  // Dio client cho gọi API
+  // Dio client
   sl.registerLazySingleton<Dio>(() => Dio(
     BaseOptions(
-      baseUrl: ApiConstants.baseUrl, // Đảm bảo ApiConstants đã được chuyển vào utils
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-      headers: {'Content-Type': 'application/json'},
+      baseUrl: ApiConstants.baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {
+        'Content-Type': ApiConstants.contentType,
+        'Accept': ApiConstants.accept,
+      },
     ),
   ));
 
-  //! External
-  final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
+  // API Client
+  sl.registerLazySingleton<ApiClient>(
+    () => ApiClient(dio: sl(), prefs: sl()),
+  );
+
+  //! Features - Auth
+  // Services
+  sl.registerLazySingleton<AuthService>(
+    () => AuthService(apiClient: sl(), prefs: sl()),
+  );
+
+  sl.registerLazySingleton<PinService>(
+    () => PinService(apiClient: sl(), prefs: sl()),
+  );
+
+  // ViewModels
+  sl.registerFactory(() => AuthViewModel(authService: sl()));
 }

@@ -13,6 +13,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -21,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _fullNameController.dispose();
+    _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -37,10 +39,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
       await viewModel.performRegister(
-        _emailController.text,
-        _passwordController.text,
+        fullName: _fullNameController.text,
+        phoneNumber: _phoneController.text,
+        email: _emailController.text.isEmpty ? null : _emailController.text,
+        password: _passwordController.text,
+        passwordConfirmation: _confirmPasswordController.text,
       );
-      // Logic điều hướng và hiển thị thông báo sẽ được xử lý trong `_buildBody` bằng Consumer
     }
   }
 
@@ -60,9 +64,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           } else if (viewModel.state is AuthSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đăng ký thành công! Vui lòng đăng nhập.')),
+                const SnackBar(
+                  content: Text('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.'),
+                  duration: Duration(seconds: 2),
+                  backgroundColor: Colors.green,
+                ),
               );
-              Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false); // Về màn hình Login
+              // Quay về màn hình đăng nhập thay vì chuyển đến initial setup
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
               viewModel.resetState();
             });
           } else if (viewModel.state is AuthError) {
@@ -109,21 +118,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Input Email
+                    // Input Số điện thoại
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(
+                        labelText: 'Số điện thoại',
+                        hintText: '+84123456789',
+                        prefixIcon: Icon(Icons.phone),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Vui lòng nhập số điện thoại';
+                        }
+                        if (value.length < 10) {
+                          return 'Số điện thoại không hợp lệ';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Input Email (optional)
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Email',
+                        labelText: 'Email (không bắt buộc)',
                         hintText: 'Nhập email của bạn',
                         prefixIcon: Icon(Icons.email),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập email';
-                        }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Email không hợp lệ';
+                        if (value != null && value.isNotEmpty) {
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return 'Email không hợp lệ';
+                          }
                         }
                         return null;
                       },

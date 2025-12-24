@@ -13,13 +13,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus(); // Đóng bàn phím
       await viewModel.performLogin(
-        _emailController.text,
+        _phoneController.text,
         _passwordController.text,
       );
     }
@@ -41,7 +41,15 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, viewModel, child) {
           if (viewModel.state is AuthSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pushNamedAndRemoveUntil(context, AppRoutes.dashboard, (route) => false);
+              final user = (viewModel.state as AuthSuccess).user;
+              // Kiểm tra xem user đã setup PIN chưa
+              if (!user.isPinSetup) {
+                // Chưa setup PIN -> đến màn hình initial setup
+                Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initialSetup, (route) => false);
+              } else {
+                // Đã setup PIN -> vào dashboard
+                Navigator.pushNamedAndRemoveUntil(context, AppRoutes.dashboard, (route) => false);
+              }
               viewModel.resetState();
             });
           } else if (viewModel.state is AuthError) {
@@ -77,19 +85,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Nhập email của bạn',
-                        prefixIcon: Icon(Icons.email),
+                        labelText: 'Số điện thoại',
+                        hintText: '+84123456789',
+                        prefixIcon: Icon(Icons.phone),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập email';
+                          return 'Vui lòng nhập số điện thoại';
                         }
-                        if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                          return 'Email không hợp lệ';
+                        if (value.length < 10) {
+                          return 'Số điện thoại không hợp lệ';
                         }
                         return null;
                       },
