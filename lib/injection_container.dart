@@ -6,6 +6,8 @@ import 'package:safetrek_app/core/network/api_client.dart';
 import 'package:safetrek_app/services/auth_service.dart';
 import 'package:safetrek_app/services/pin_service.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+import 'package:safetrek_app/repositories/guardian_repository.dart';
+import 'package:safetrek_app/screens/guardian_view_model.dart';
 
 final sl = GetIt.instance;
 
@@ -45,4 +47,16 @@ Future<void> init() async {
 
   // ViewModels
   sl.registerFactory(() => AuthViewModel(authService: sl()));
+
+  //! Features - Guardian
+  // Repository
+  sl.registerLazySingleton<GuardianRepository>(() => GuardianRepository(apiClient: sl()));
+
+  // ViewModel
+  sl.registerFactory(
+    () => GuardianViewModel(
+      repository: sl(),
+      authService: sl(),
+    ),
+  );
 }
