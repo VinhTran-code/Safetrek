@@ -4,6 +4,7 @@ import 'package:safetrek_app/screens/auth_view_model.dart';
 import 'package:safetrek_app/screens/change_password_screen.dart';
 import 'package:safetrek_app/screens/safe_pin.dart';
 import 'package:safetrek_app/screens/force_pin.dart';
+import 'pin_setup_mode.dart';
 
 class ProfileTabScreen extends StatefulWidget {
   const ProfileTabScreen({super.key});
@@ -17,21 +18,24 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
   bool _gpsEnabled = true;
   bool _backgroundRunEnabled = true;
 
-  //điều hướng tới màn hình đổi mã PIN an toàn
+  //Sửa lại hàm _navigateToSafePinSetup
   void _navigateToSafePinSetup() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SafePinSetupScreen(),
+        // Truyền tín hiệu "cập nhật" cho màn hình tiếp theo
+        builder: (context) => const SafePinSetupScreen(mode: PinSetupMode.update),
       ),
     );
   }
-  //điều hướng tới màn hình đổi mã PIN ép buộc
+
+  //Sửa lại hàm _navigateToForcePinSetup
   void _navigateToForcePinSetup() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ForcePinSetupScreen(),
+        // Truyền tín hiệu "cập nhật" cho màn hình tiếp theo
+        builder: (context) => const ForcePinSetupScreen(mode: PinSetupMode.update),
       ),
     );
   }
@@ -280,7 +284,6 @@ class _ProfileTabScreenState extends State<ProfileTabScreen> {
             Expanded(
               child: Text(
                 text,
-                // ĐÂY LÀ DÒNG ĐÃ SỬA
                 style: TextStyle(color: color, height: 1.4),
               ),
             ),

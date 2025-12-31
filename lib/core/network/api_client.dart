@@ -21,27 +21,44 @@ class ApiClient {
       'Accept': ApiConstants.accept,
     };
 
-    // Debug: Show which base URL is being used
     print('🌐 API Client initialized with Base URL: ${ApiConstants.baseUrl}');
 
-    // Interceptor để thêm token vào mọi request
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          print('--- Interceptor: Bắt đầu Request ---');
+          print('🚀 Path: ${options.path}');
+          
           final token = prefs.getString(ApiConstants.tokenKey);
+
           if (token != null) {
+            print('🔑 Token tìm thấy! Đang đính kèm vào header.');
+            // print('   Token: $token'); // Uncomment dòng này nếu muốn xem toàn bộ token
             options.headers['Authorization'] = 'Bearer $token';
+          } else {
+            print('❌ Không tìm thấy token trong SharedPreferences.');
           }
+          
+          print('--- Interceptor: Gửi Request đi ---');
           return handler.next(options);
         },
+        onResponse: (response, handler) {
+          print('✅ Phản hồi nhận được cho: ${response.requestOptions.path} | Status: ${response.statusCode}');
+          return handler.next(response);
+        },
         onError: (error, handler) async {
-          // Xử lý lỗi 401 (Unauthorized)
+          print('--- Interceptor: Gặp lỗi ---');
+          print('💥 Lỗi cho request: ${error.requestOptions.path}');
+          print('💥 Status Code: ${error.response?.statusCode}');
+          print('💥 Message: ${error.message}');
+          
           if (error.response?.statusCode == 401) {
-            // Clear token và user data
+            print('🔴 Lỗi 401 (Unauthorized)! Đang xóa token và dữ liệu người dùng.');
             await prefs.remove(ApiConstants.tokenKey);
             await prefs.remove(ApiConstants.userKey);
-            // Có thể redirect về login screen ở đây
           }
+          
+          print('--- Interceptor: Chuyển lỗi đi tiếp ---');
           return handler.next(error);
         },
       ),
@@ -64,4 +81,3 @@ class ApiClient {
     return await dio.delete(path, data: data);
   }
 }
-
