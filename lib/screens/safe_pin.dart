@@ -22,6 +22,9 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  // Thêm biến để track bước hiện tại (chỉ dùng cho mode update)
+  int _currentStep = 1; // 1 = Nhập PIN cũ, 2 = Nhập PIN mới
+
   // Lấy PinService từ GetIt
   final PinService _pinService = sl<PinService>();
 
@@ -59,9 +62,54 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
   Future<void> _handlePinEntered(String pin) async {
     // Dựa vào chế độ được truyền vào để quyết định hành động
     if (widget.mode == PinSetupMode.update) {
-      await _updatePin(pin);
+      // Nếu đang ở bước 1 (xác thực PIN cũ)
+      if (_currentStep == 1) {
+        await _verifyOldPin(pin);
+      } else {
+        // Bước 2: Cập nhật PIN mới
+        await _updatePin(pin);
+      }
     } else {
       _navigateToDuressPinScreen(pin);
+    }
+  }
+
+  // Hàm xác thực PIN cũ
+  Future<void> _verifyOldPin(String pin) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Gọi API verify PIN
+      final result = await _pinService.verifyTripPin(pin);
+
+      if (mounted) {
+        // Kiểm tra phải là safety PIN
+        if (result['pin_type'] == 'safety') {
+          setState(() {
+            _newPin = '';
+            _currentStep = 2; // Chuyển sang bước 2
+            _isLoading = false;
+          });
+        } else {
+          // Nếu nhập PIN ép buộc
+          setState(() {
+            _errorMessage = 'Vui lòng nhập PIN an toàn hiện tại';
+            _newPin = '';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'PIN không đúng';
+          _newPin = '';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -128,7 +176,9 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Text(
-              widget.mode == PinSetupMode.update ? 'Đổi PIN An toàn' : 'Thiết lập PIN An toàn',
+              widget.mode == PinSetupMode.update
+                ? (_currentStep == 1 ? 'Xác thực PIN cũ' : 'Nhập PIN An toàn mới')
+                : 'Thiết lập PIN An toàn',
               style: TextStyle(
                 color: _textColor,
                 fontSize: 24.0,
@@ -137,7 +187,11 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
             ),
             const SizedBox(height: 4.0),
             Text(
-              'Mã PIN này dùng để check-in bình thường',
+              widget.mode == PinSetupMode.update
+                ? (_currentStep == 1
+                    ? 'Nhập PIN an toàn hiện tại để xác thực'
+                    : 'Mã PIN mới phải khác với PIN ép buộc')
+                : 'Mã PIN này dùng để check-in bình thường',
               style: TextStyle(
                 color: _textColor.withOpacity(0.7),
                 fontSize: 14.0,
