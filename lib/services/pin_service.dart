@@ -58,6 +58,31 @@ class PinService {
     }
   }
 
+  /// Verify Safety PIN - Gọi API POST /verify-safety-pin
+  /// Xác thực mã PIN an toàn người dùng nhập
+  Future<void> verifySafetyPin(String pin) async {
+    try {
+      // Chúng ta sẽ cần tạo API endpoint này ở phía server
+      final response = await apiClient.post(
+        '/verify-safety-pin', // <-- Endpoint mới
+        data: {
+          'safety_pin': pin,
+        },
+      );
+
+      // Nếu server trả về success != true, coi như là lỗi
+      if (response.data['success'] != true) {
+        throw Exception('Phản hồi không hợp lệ từ server.');
+      }
+
+      // Nếu không có lỗi, hàm sẽ kết thúc và coi như thành công
+      // Nếu PIN sai, server nên trả về lỗi (ví dụ 422) và Dio sẽ tự động coi đó là một Exception
+    } on DioException catch (e) {
+      // Ném lại lỗi đã được xử lý để UI có thể hiển thị
+      throw _handleError(e);
+    }
+  }
+
   /// Xử lý lỗi từ API
   String _handleError(DioException error) {
     if (error.response != null) {
