@@ -59,7 +59,6 @@ class PinService {
   }
 
   /// Verify a PIN during a trip (safety or duress)
-  /// Returns the type of PIN ('safety' or 'duress')
   Future<String> verifyTripPin(String pin) async {
     try {
       final response = await apiClient.post(
@@ -74,6 +73,30 @@ class PinService {
         }
       }
       throw Exception('Phản hồi không hợp lệ từ server.');
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update the user's safety PIN
+  Future<void> updateSafetyPin(String pin) async {
+    try {
+      await apiClient.post(
+        ApiConstants.updateSafetyPin,
+        data: {'safety_pin': pin},
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  /// Update the user's duress PIN
+  Future<void> updateDuressPin(String pin) async {
+    try {
+      await apiClient.post(
+        ApiConstants.updateDuressPin,
+        data: {'duress_pin': pin},
+      );
     } on DioException catch (e) {
       throw _handleError(e);
     }
