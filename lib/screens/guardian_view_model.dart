@@ -69,4 +69,19 @@ class GuardianViewModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  // Cập nhật trạng thái guardian (accepted/pending/rejected)
+  Future<void> updateGuardianStatus(int guardianId, String status) async {
+    try {
+      final updatedGuardian = await repository.updateGuardianStatus(guardianId, status);
+      // Tìm và cập nhật trong danh sách
+      final index = _guardians.indexWhere((g) => g.id == guardianId);
+      if (index != -1) {
+        _guardians[index] = updatedGuardian;
+      }
+    } catch (e) {
+      _state = AuthError(e.toString());
+    }
+    notifyListeners();
+  }
 }
