@@ -44,7 +44,10 @@ class ApiConstants {
   static const String panic = '/trips/panic';
   static const String updateLocation = '/trips/update-location';
   static const String endTrip = '/trips/end';
+  static const String cancelTrip = '/trips/cancel';
   static const String getActiveTrip = '/trips/active';
+  static const String getTripHistory = '/trips/history';
+  static const String verifyTripPin = '/verify-trip-pin';
 
   // Guardian Endpoints
   static const String guardians = '/guardians';
