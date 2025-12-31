@@ -12,12 +12,10 @@ import 'package:safetrek_app/screens/guardian_view_model.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  //! External - Phải init trước
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
   //! Core
-  // Dio client
   sl.registerLazySingleton<Dio>(() => Dio(
     BaseOptions(
       baseUrl: ApiConstants.baseUrl,
@@ -30,29 +28,18 @@ Future<void> init() async {
     ),
   ));
 
-  // API Client
-  sl.registerLazySingleton<ApiClient>(
-    () => ApiClient(dio: sl(), prefs: sl()),
-  );
-
-  //! Features - Auth
-  // Services
-  sl.registerLazySingleton<AuthService>(
-    () => AuthService(apiClient: sl(), prefs: sl()),
-  );
-
-  sl.registerLazySingleton<PinService>(
-    () => PinService(apiClient: sl(), prefs: sl()),
-  );
-
-  // ViewModels
-  sl.registerFactory(() => AuthViewModel(authService: sl()));
-
-  //! Features - Guardian
-  // Repository
+  sl.registerLazySingleton<ApiClient>(() => ApiClient(dio: sl(), prefs: sl()));
+  
+  //! Features
+  // Services - nên là Singleton để giữ trạng thái
+  sl.registerLazySingleton<AuthService>(() => AuthService(apiClient: sl(), prefs: sl()));
+  sl.registerLazySingleton<PinService>(() => PinService(apiClient: sl(), prefs: sl())); 
+  
+  // Repositories
   sl.registerLazySingleton<GuardianRepository>(() => GuardianRepository(apiClient: sl()));
 
-  // ViewModel
+  // ViewModels - nên là Factory để mỗi màn hình có state riêng
+  sl.registerFactory(() => AuthViewModel(authService: sl()));
   sl.registerFactory(
     () => GuardianViewModel(
       repository: sl(),
