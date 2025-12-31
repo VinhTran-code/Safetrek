@@ -44,4 +44,18 @@ class GuardianRepository {
       rethrow;
     }
   }
+
+  /// Cập nhật trạng thái guardian (pending/accepted/rejected)
+  Future<Guardian> updateGuardianStatus(int guardianId, String status) async {
+    try {
+      final response = await apiClient.put(
+        '${ApiConstants.guardians}/$guardianId/status',
+        data: {'status': status},
+      );
+      return Guardian.fromJson(response.data['data']);
+    } catch (e) {
+      print('Lỗi khi cập nhật trạng thái người bảo vệ: $e');
+      rethrow;
+    }
+  }
 }
