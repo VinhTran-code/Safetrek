@@ -58,6 +58,58 @@ class _GuardiansTabScreenState extends State<GuardiansTabScreen> {
     );
   }
 
+  // Hiển thị dialog xác nhận xóa
+  void _showDeleteConfirmDialog(Guardian guardian) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          title: const Text('Xác nhận xóa'),
+          content: Text(
+            'Bạn có chắc chắn muốn xóa "${guardian.contactName}" khỏi danh sách người bảo vệ?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context); // Đóng dialog
+                try {
+                  await _viewModel.removeGuardian(guardian.id);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Đã xóa người bảo vệ'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Xóa thất bại: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Xóa'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
@@ -199,12 +251,10 @@ class _GuardiansTabScreenState extends State<GuardiansTabScreen> {
                 // Dùng tên thật
                 Expanded(child: Text(guardian.contactName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
                 const Spacer(),
-                // Nút xóa gọi hàm từ ViewModel
+                // Nút xóa với xác nhận
                 IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red),
-                  onPressed: () {
-                    _viewModel.removeGuardian(guardian.id);
-                  },
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () => _showDeleteConfirmDialog(guardian),
                 )
               ],
             ),
@@ -213,7 +263,33 @@ class _GuardiansTabScreenState extends State<GuardiansTabScreen> {
             if (isVerified)
               _buildStatusChip(Icons.check_circle, 'Đã xác nhận', Colors.green)
             else
-              _buildStatusChip(Icons.hourglass_empty, 'Đang chờ xác nhận', Colors.orange),
+              Column(
+                children: [
+                  _buildStatusChip(Icons.hourglass_empty, 'Đang chờ xác nhận', Colors.orange),
+                  const SizedBox(height: 12),
+                  // Nút để chuyển trạng thái sang accepted (dành cho test/demo)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        await _viewModel.updateGuardianStatus(guardian.id, 'accepted');
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Đã cập nhật trạng thái thành công'), backgroundColor: Colors.green),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.check, size: 18),
+                      label: const Text('Đánh dấu đã xác nhận'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.green,
+                        side: const BorderSide(color: Colors.green),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             const Divider(height: 24),
             // Dùng SĐT thật
             _buildContactInfo(Icons.phone_outlined, guardian.contactPhoneNumber),

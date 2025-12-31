@@ -59,7 +59,7 @@ class PinService {
   }
 
   /// Verify a PIN during a trip (safety or duress)
-  Future<String> verifyTripPin(String pin) async {
+  Future<Map<String, dynamic>> verifyTripPin(String pin) async {
     try {
       final response = await apiClient.post(
         '/verify-trip-pin', // Endpoint mới
@@ -67,10 +67,7 @@ class PinService {
       );
 
       if (response.data['success'] == true && response.data['data'] != null) {
-        final pinType = response.data['data']['pin_type'] as String?;
-        if (pinType == 'safety' || pinType == 'duress') {
-          return pinType!;
-        }
+        return response.data['data'] as Map<String, dynamic>;
       }
       throw Exception('Phản hồi không hợp lệ từ server.');
     } on DioException catch (e) {
