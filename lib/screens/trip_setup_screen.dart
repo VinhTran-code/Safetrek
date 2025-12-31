@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:safetrek_app/screens/trip_monitoring_screen.dart';
+import 'package:safetrek_app/screens/trip_view_model.dart';
+import 'package:safetrek_app/injection_container.dart';
 import '../services/google_places_service.dart';
 
 class TripSetupScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
   final FocusNode _searchFocusNode = FocusNode();
 
   final GooglePlacesService _placesService = GooglePlacesService();
+  late final TripViewModel _tripViewModel;
 
   // Map state
   LatLng _currentPosition = const LatLng(10.762622, 106.660172); // Default: TP.HCM
@@ -34,6 +36,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
   @override
   void initState() {
     super.initState();
+    _tripViewModel = sl<TripViewModel>();
     _getCurrentLocation();
 
     // Listen to search text changes
@@ -217,7 +220,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
     super.dispose();
   }
 
-  void _startMonitoring() {
+  void _startMonitoring() async {
     if (_destinationName == null || _destinationName!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Vui lòng chọn điểm đến")),
@@ -226,26 +229,71 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
     }
 
     final duration = int.tryParse(_durationController.text) ?? 0;
-    if (duration <= 0) {
+    if (duration <= 0 || duration > 1440) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vui lòng nhập thời gian hợp lệ (phút)")),
+        const SnackBar(content: Text("Vui lòng nhập thời gian hợp lệ (1-1440 phút)")),
       );
       return;
     }
 
-    // TODO: Call API POST /trips/start
-    debugPrint("Starting trip to: $_destinationName");
-    debugPrint("Duration: $duration minutes");
-    debugPrint("Destination coords: ${_destinationPosition?.latitude}, ${_destinationPosition?.longitude}");
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TripMonitoringScreen(
-          tripDurationInSeconds: duration * 60,
-        ),
-      ),
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      // Gọi API để bắt đầu chuyến đi
+      await _tripViewModel.startTrip(
+        destinationName: _destinationName!,
+        durationMinutes: duration,
+      );
+
+      // Đóng loading
+      if (mounted) Navigator.of(context).pop();
+
+      // Kiểm tra kết quả
+      if (_tripViewModel.state is TripActive) {
+        final tripState = _tripViewModel.state as TripActive;
+
+        // Chuyển đến màn hình monitoring với trip data
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TripMonitoringScreen(
+                tripDurationInSeconds: duration * 60,
+                tripId: tripState.trip.id,
+              ),
+            ),
+          );
+        }
+      } else if (_tripViewModel.state is TripError) {
+        // Hiển thị lỗi
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text((_tripViewModel.state as TripError).message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Đóng loading
+      if (mounted) Navigator.of(context).pop();
+
+      // Hiển thị lỗi
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi khi bắt đầu chuyến đi: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
