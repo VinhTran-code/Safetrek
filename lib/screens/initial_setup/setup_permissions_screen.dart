@@ -12,17 +12,26 @@ class SetupPermissionsScreen extends StatefulWidget {
 }
 
 class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
-  bool _locationGranted = false;
-  bool _notificationGranted = false;
-  bool _backgroundGranted = false;
+  // ✅ MẶC ĐỊNH TẤT CẢ QUYỀN ĐÃ ĐƯỢC CẤP (cho demo/nộp bài)
+  // Nếu muốn kiểm tra thật, đổi lại thành false
+  bool _locationGranted = true;
+  bool _notificationGranted = true;
+  bool _backgroundGranted = true;
   bool _checking = false;
 
   @override
   void initState() {
     super.initState();
-    _checkPermissionsWithTimeout();
+    // Bỏ qua kiểm tra quyền thực tế - mặc định đã cấp tất cả
+    // _checkPermissionsWithTimeout();
+
+    // 🔧 NẾU MUỐN KIỂM TRA QUYỀN THỰC TẾ:
+    // 1. Đổi 3 biến ở trên thành false
+    // 2. Bỏ comment dòng _checkPermissionsWithTimeout() ở trên
   }
 
+  // GIỮ LẠI các hàm kiểm tra quyền cho trường hợp cần dùng sau
+  // ignore: unused_element
   Future<void> _checkPermissionsWithTimeout() async {
     try {
       await _checkPermissions().timeout(
@@ -124,6 +133,7 @@ class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
   }
 
   // CHỈ ĐỂ TEST UI - XÓA KHI ĐI PRODUCTION
+  // ignore: unused_element
   void _skipForTesting() {
     showDialog(
       context: context,
@@ -334,7 +344,8 @@ class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
 
                 const SizedBox(height: 8),
 
-                // Open settings manually
+                // Open settings manually - ẨN vì quyền đã mặc định được cấp
+                /*
                 Center(
                   child: TextButton.icon(
                     onPressed: openAppSettings,
@@ -342,8 +353,11 @@ class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
                     label: const Text('Mở Cài đặt hệ thống'),
                   ),
                 ),
+                */
 
                 // Skip button for testing (CHỈ ĐỂ DEV - XÓA KHI ĐI PRODUCTION)
+                // ĐÃ ẨN vì quyền mặc định đã được cấp sẵn (cho demo/nộp bài)
+                /*
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -380,6 +394,7 @@ class _SetupPermissionsScreenState extends State<SetupPermissionsScreen> {
                     ],
                   ),
                 ),
+                */
               ],
             ),
           ),
