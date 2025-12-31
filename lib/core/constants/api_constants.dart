@@ -35,6 +35,8 @@ class ApiConstants {
   static const String logout = '/logout';
   static const String me = '/me';
   static const String setupPins = '/setup-pins';
+  static const String updateSafetyPin = '/update-safety-pin';
+  static const String updateDuressPin = '/update-duress-pin';
   static const String updateFcmToken = '/update-fcm-token';
 
   // Trip Endpoints
