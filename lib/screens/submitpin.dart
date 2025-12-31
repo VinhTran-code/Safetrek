@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/injection_container.dart';
 import 'package:safetrek_app/services/pin_service.dart';
+import 'package:safetrek_app/screens/trip_view_model.dart';
 
 class SubmitPinScreen extends StatefulWidget {
-  const SubmitPinScreen({super.key});
+  final int? tripId;
+
+  const SubmitPinScreen({super.key, this.tripId});
 
   @override
   State<SubmitPinScreen> createState() => _SubmitPinScreenState();
@@ -17,6 +20,13 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
   String? _errorMessage;
 
   final PinService _pinService = sl<PinService>();
+  late final TripViewModel _tripViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _tripViewModel = sl<TripViewModel>();
+  }
 
   void _onNumberPressed(int number) {
     if (_isLoading) return;
@@ -40,22 +50,47 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
     });
 
     try {
-      // Gọi hàm mới, nó sẽ trả về 'safety' hoặc 'duress'
-      final pinType = await _pinService.verifyTripPin(enteredPin);
+      // Nếu có tripId, gọi API end trip
+      if (widget.tripId != null) {
+        await _tripViewModel.endTrip(pinCode: enteredPin);
 
-      if (pinType == 'safety') {
-        print('Xác thực PIN an toàn thành công!');
-        if (mounted) {
-          // Pop về trang chủ
-          Navigator.pop(context, true);
-          Navigator.pop(context, true);
-          Navigator.pop(context, true);
+        // Kiểm tra kết quả
+        if (_tripViewModel.state is TripEnded) {
+          final message = (_tripViewModel.state as TripEnded).message;
+          print('Kết thúc chuyến đi thành công: $message');
+
+          if (mounted) {
+            // Hiển thị thông báo thành công
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            // Pop về trang chủ (loại bỏ tất cả màn hình trip)
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        } else if (_tripViewModel.state is TripError) {
+          // Hiển thị lỗi
+          final error = (_tripViewModel.state as TripError).message;
+          throw Exception(error);
         }
-      } else if (pinType == 'duress') {
-        print('PIN ép buộc đã được nhập!');
-        // Server sẽ lo việc gửi cảnh báo. App chỉ cần đóng màn hình PIN.
-        if (mounted) {
-          //Sửa phần này để PIN ép buộc hoạt dđộng
+      } else {
+        // Nếu không có tripId, chỉ verify PIN (flow cũ)
+        final pinType = await _pinService.verifyTripPin(enteredPin);
+
+        if (pinType == 'safety') {
+          print('Xác thực PIN an toàn thành công!');
+          if (mounted) {
+            Navigator.pop(context, true);
+          }
+        } else if (pinType == 'duress') {
+          print('PIN ép buộc đã được nhập!');
+          if (mounted) {
+            // TODO: Xử lý cho duress PIN
+            Navigator.pop(context, true);
+          }
         }
       }
     } catch (e) {
