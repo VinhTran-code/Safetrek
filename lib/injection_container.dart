@@ -5,9 +5,12 @@ import 'package:safetrek_app/core/constants/api_constants.dart';
 import 'package:safetrek_app/core/network/api_client.dart';
 import 'package:safetrek_app/services/auth_service.dart';
 import 'package:safetrek_app/services/pin_service.dart';
+import 'package:safetrek_app/services/trip_service.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
 import 'package:safetrek_app/repositories/guardian_repository.dart';
+import 'package:safetrek_app/repositories/trip_repository.dart';
 import 'package:safetrek_app/screens/guardian_view_model.dart';
+import 'package:safetrek_app/screens/trip_view_model.dart';
 
 final sl = GetIt.instance;
 
@@ -59,4 +62,14 @@ Future<void> init() async {
       authService: sl(),
     ),
   );
+
+  //! Features - Trip
+  // Repository
+  sl.registerLazySingleton<TripRepository>(() => TripRepository(apiClient: sl()));
+
+  // Service
+  sl.registerLazySingleton<TripService>(() => TripService(repository: sl()));
+
+  // ViewModel
+  sl.registerFactory(() => TripViewModel(tripService: sl()));
 }
