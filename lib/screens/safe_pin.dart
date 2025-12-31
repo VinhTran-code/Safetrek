@@ -131,8 +131,15 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMsg = e.toString().replaceAll('Exception: ', '');
+        // Kiểm tra lỗi từ server về PIN trùng nhau
+        if (errorMsg.contains('khác với PIN ép buộc') ||
+            errorMsg.contains('must be different') ||
+            errorMsg.contains('trùng')) {
+          errorMsg = 'PIN an toàn phải khác với PIN ép buộc';
+        }
         setState(() {
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          _errorMessage = errorMsg;
           _newPin = ''; // Xóa PIN để nhập lại
         });
       }
