@@ -78,7 +78,8 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
         }
       } else {
         // Nếu không có tripId, chỉ verify PIN (flow cũ)
-        final pinType = await _pinService.verifyTripPin(enteredPin);
+        final result = await _pinService.verifyTripPin(enteredPin);
+        final pinType = result['pin_type'] as String?;
 
         if (pinType == 'safety') {
           print('Xác thực PIN an toàn thành công!');
