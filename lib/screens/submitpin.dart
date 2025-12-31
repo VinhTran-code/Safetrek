@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:safetrek_app/injection_container.dart';
+import 'package:safetrek_app/services/pin_service.dart';
 
 class SubmitPinScreen extends StatefulWidget {
   const SubmitPinScreen({super.key});
@@ -8,134 +10,99 @@ class SubmitPinScreen extends StatefulWidget {
 }
 
 class _SubmitPinScreenState extends State<SubmitPinScreen> {
-  // Biến lưu trữ mã PIN đã nhập
   String _pin = '';
-  // Độ dài PIN dự kiến (4 chữ số)
   final int _pinLength = 4;
-  final String _correctPin = '1234'; // Mã PIN đúng
 
-  // Hàm xử lý khi nhấn một nút số
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  final PinService _pinService = sl<PinService>();
+
   void _onNumberPressed(int number) {
+    if (_isLoading) return;
+
     setState(() {
+      _errorMessage = null;
       if (_pin.length < _pinLength) {
         _pin += number.toString();
       }
     });
-    // Thêm logic xử lý khi PIN đã đủ độ dài ở đây (ví dụ: xác thực)
+
     if (_pin.length == _pinLength) {
-      _validatePin(_pin);
+      _validatePinOnServer(_pin);
     }
   }
 
-  void _validatePin(String enteredPin) {
-    if (enteredPin == _correctPin) {
-      print('Xác thực PIN thành công!');
-      //Quay về trang chủ
-      Navigator.pop(context);
-      Navigator.pop(context);
-      Navigator.pop(context);
-    } else {
-      print('Xác thực PIN thất bại!');
-      setState(() {
-        _pin = ''; // Xóa PIN để người dùng nhập lại
-        // Thêm logic hiển thị lỗi (ví dụ: Toast, SnackBar) tại đây nếu cần
-      });
-    }
-  }
-
-  // Hàm xử lý khi nhấn nút xóa (backspace)
-  void _onDeletePressed() {
+  Future<void> _validatePinOnServer(String enteredPin) async {
     setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Gọi hàm mới, nó sẽ trả về 'safety' hoặc 'duress'
+      final pinType = await _pinService.verifyTripPin(enteredPin);
+
+      if (pinType == 'safety') {
+        print('Xác thực PIN an toàn thành công!');
+        if (mounted) {
+          // Pop về trang chủ
+          Navigator.pop(context, true);
+          Navigator.pop(context, true);
+          Navigator.pop(context, true);
+        }
+      } else if (pinType == 'duress') {
+        print('PIN ép buộc đã được nhập!');
+        // Server sẽ lo việc gửi cảnh báo. App chỉ cần đóng màn hình PIN.
+        if (mounted) {
+          //Sửa phần này để PIN ép buộc hoạt dđộng
+        }
+      }
+    } catch (e) {
+      print('Xác thực PIN thất bại: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Mã PIN không đúng. Vui lòng thử lại.';
+          _pin = '';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _onDeletePressed() {
+    if (_isLoading) return;
+
+    setState(() {
+      _errorMessage = null;
       if (_pin.isNotEmpty) {
         _pin = _pin.substring(0, _pin.length - 1);
       }
     });
   }
 
-  // Widget hiển thị một ô PIN (chưa nhập hoặc đã nhập)
-  Widget _buildPinCircle(int index) {
-    bool isFilled = index < _pin.length;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12.0),
-      width: 24.0,
-      height: 24.0,
-      decoration: BoxDecoration(
-        color: isFilled ? Colors.white : Colors.transparent, // Màu nền trắng nếu đã nhập, trong suốt nếu chưa
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Colors.white.withOpacity(0.5), // Viền mờ cho ô chưa nhập
-          width: 2.0,
-        ),
-      ),
-    );
-  }
-
-  // Widget hiển thị một nút số lớn
-  Widget _buildNumberButton(int number) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: InkWell(
-          onTap: () => _onNumberPressed(number),
-          borderRadius: BorderRadius.circular(16.0), // Bo góc cho hiệu ứng nhấn
-          child: Container(
-            height: 60.0,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1F2937), // Màu nền nút đậm hơn nền chính
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              number.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28.0,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Widget hiển thị nút xóa (Backspace) hoặc nút số 0 hoặc ô trống
-  Widget _buildSpecialButton(Widget? child, VoidCallback? onPressed) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(16.0),
-          child: Container(
-            height: 60.0,
-            decoration: BoxDecoration(
-              color: onPressed != null ? const Color(0xFF1F2937) : Colors.transparent, // Màu nền nếu là nút 0 hoặc Xóa
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            alignment: Alignment.center,
-            child: child,
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Màu nền tổng thể (Blue/Slate 900)
+      backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A), // Màu nền AppBar
+        backgroundColor: const Color(0xFF0F172A),
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // Phần tiêu đề
             const Text(
               'Nhập mã PIN',
               style: TextStyle(
@@ -153,8 +120,6 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
               ),
             ),
             const SizedBox(height: 60.0),
-
-            // Phần hiển thị PIN đã nhập
             Column(
               children: [
                 const Icon(
@@ -167,15 +132,33 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(_pinLength, (index) => _buildPinCircle(index)),
                 ),
+                SizedBox(
+                  height: 24,
+                  child: _isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          ),
+                        )
+                      : _errorMessage != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(color: Colors.redAccent, fontSize: 12),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : null,
+                ),
               ],
             ),
-
-            const Spacer(), // Đẩy bàn phím số xuống dưới
-
-            // Bàn phím số
+            const Spacer(),
             Column(
               children: <Widget>[
-                // Hàng 1: 1, 2, 3
                 Row(
                   children: <Widget>[
                     _buildNumberButton(1),
@@ -183,7 +166,6 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
                     _buildNumberButton(3),
                   ],
                 ),
-                // Hàng 2: 4, 5, 6
                 Row(
                   children: <Widget>[
                     _buildNumberButton(4),
@@ -191,7 +173,6 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
                     _buildNumberButton(6),
                   ],
                 ),
-                // Hàng 3: 7, 8, 9
                 Row(
                   children: <Widget>[
                     _buildNumberButton(7),
@@ -199,13 +180,9 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
                     _buildNumberButton(9),
                   ],
                 ),
-                // Hàng 4: Trống, 0, Xóa
                 Row(
                   children: <Widget>[
-                    _buildSpecialButton(
-                      null, // Nút trống
-                      null,
-                    ),
+                    _buildSpecialButton(null, null),
                     _buildNumberButton(0),
                     _buildSpecialButton(
                       const Icon(Icons.backspace_outlined, color: Colors.white, size: 28.0),
@@ -215,8 +192,74 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 20.0), // Khoảng cách cuối cùng
+            const SizedBox(height: 20.0),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPinCircle(int index) {
+    bool isFilled = index < _pin.length;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12.0),
+      width: 24.0,
+      height: 24.0,
+      decoration: BoxDecoration(
+        color: isFilled ? Colors.white : Colors.transparent,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: _errorMessage != null ? Colors.redAccent : Colors.white.withOpacity(0.5),
+          width: 2.0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNumberButton(int number) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InkWell(
+          onTap: () => _onNumberPressed(number),
+          borderRadius: BorderRadius.circular(16.0),
+          child: Container(
+            height: 60.0,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1F2937),
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              number.toString(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28.0,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSpecialButton(Widget? child, VoidCallback? onPressed) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(16.0),
+          child: Container(
+            height: 60.0,
+            decoration: BoxDecoration(
+              color: onPressed != null ? const Color(0xFF1F2937) : Colors.transparent,
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            alignment: Alignment.center,
+            child: child,
+          ),
         ),
       ),
     );
