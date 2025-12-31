@@ -26,6 +26,9 @@ class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  // Thêm biến để track bước hiện tại (chỉ dùng cho mode update)
+  int _currentStep = 1; // 1 = Nhập PIN cũ, 2 = Nhập PIN mới
+
   // Lấy PinService từ GetIt
   final PinService _pinService = sl<PinService>();
 
@@ -62,7 +65,13 @@ class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
   Future<void> _handlePinEntered(String duressPin) async {
     // Dựa vào chế độ để quyết định hành động
     if (widget.mode == PinSetupMode.update) {
-      await _updateDuressPin(duressPin);
+      // Nếu đang ở bước 1 (xác thực PIN cũ)
+      if (_currentStep == 1) {
+        await _verifyOldPin(duressPin);
+      } else {
+        // Bước 2: Cập nhật PIN mới
+        await _updateDuressPin(duressPin);
+      }
     } else {
       // Đảm bảo có safetyPin trong luồng thiết lập ban đầu
       if (widget.safetyPin == null) {
@@ -73,6 +82,45 @@ class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
         return;
       }
       await _setupBothPins(widget.safetyPin!, duressPin);
+    }
+  }
+
+  // Hàm xác thực PIN cũ
+  Future<void> _verifyOldPin(String pin) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Gọi API verify PIN
+      final result = await _pinService.verifyTripPin(pin);
+
+      if (mounted) {
+        // Kiểm tra phải là duress PIN
+        if (result['pin_type'] == 'duress') {
+          setState(() {
+            _newPin = '';
+            _currentStep = 2; // Chuyển sang bước 2
+            _isLoading = false;
+          });
+        } else {
+          // Nếu nhập PIN an toàn
+          setState(() {
+            _errorMessage = 'Vui lòng nhập PIN ép buộc hiện tại';
+            _newPin = '';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'PIN không đúng';
+          _newPin = '';
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -152,7 +200,9 @@ class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Text(
-              widget.mode == PinSetupMode.update ? 'Đổi PIN Ép buộc' : 'Thiết lập PIN Ép buộc',
+              widget.mode == PinSetupMode.update
+                ? (_currentStep == 1 ? 'Xác thực PIN cũ' : 'Nhập PIN Ép buộc mới')
+                : 'Thiết lập PIN Ép buộc',
               style: TextStyle(
                 color: _textColor,
                 fontSize: 24.0,
@@ -161,7 +211,11 @@ class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
             ),
             const SizedBox(height: 4.0),
             Text(
-              'Mã PIN này dùng khi bạn bị đe doạ',
+              widget.mode == PinSetupMode.update
+                ? (_currentStep == 1
+                    ? 'Nhập PIN ép buộc hiện tại để xác thực'
+                    : 'Mã PIN mới phải khác với PIN an toàn')
+                : 'Mã PIN này dùng khi bạn bị đe doạ',
               style: TextStyle(
                 color: _textColor.withOpacity(0.7),
                 fontSize: 14.0,
