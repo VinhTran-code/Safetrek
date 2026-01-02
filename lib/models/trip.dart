@@ -150,23 +150,56 @@ class EndTripRequest {
   }
 }
 
-class PanicRequest {
-  final double latitude;
-  final double longitude;
-  final int batteryLevel;
+class EndTripWithLocationRequest {
+  final int tripId;
+  final String pinCode;
+  final double? latitude;
+  final double? longitude;
+  final int? batteryLevel;
 
-  PanicRequest({
-    required this.latitude,
-    required this.longitude,
-    required this.batteryLevel,
+  EndTripWithLocationRequest({
+    required this.tripId,
+    required this.pinCode,
+    this.latitude,
+    this.longitude,
+    this.batteryLevel,
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'battery_level': batteryLevel,
+    final Map<String, dynamic> json = {
+      'trip_id': tripId,
+      'pin_code': pinCode,
     };
+
+    // Thêm location và battery nếu có
+    if (latitude != null) json['latitude'] = latitude;
+    if (longitude != null) json['longitude'] = longitude;
+    if (batteryLevel != null) json['battery_level'] = batteryLevel;
+
+    return json;
+  }
+}
+
+class PanicRequest {
+  final double? latitude;     // Optional - null khi panic từ trang chủ
+  final double? longitude;    // Optional - null khi panic từ trang chủ
+  final int? batteryLevel;    // Optional
+
+  PanicRequest({
+    this.latitude,
+    this.longitude,
+    this.batteryLevel,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = {};
+
+    // Chỉ thêm fields nếu có giá trị
+    if (latitude != null) json['latitude'] = latitude;
+    if (longitude != null) json['longitude'] = longitude;
+    if (batteryLevel != null) json['battery_level'] = batteryLevel;
+
+    return json;
   }
 }
 
