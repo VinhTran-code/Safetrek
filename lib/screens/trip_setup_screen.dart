@@ -155,7 +155,9 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
   }
 
   void _onPlaceSelected(PlacePrediction prediction) async {
-    // Update text field
+    print('🟢 _onPlaceSelected called: ${prediction.description}');
+
+    // Update text field NGAY LẬP TỨC
     setState(() {
       _destinationController.text = prediction.description;
       _destinationName = prediction.description;
@@ -166,9 +168,13 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
     // Unfocus to hide keyboard
     _searchFocusNode.unfocus();
 
+    print('🟢 Getting place details...');
+
     // Get place details (coordinates)
     try {
       final details = await _placesService.getPlaceDetails(prediction.placeId);
+
+      print('🟢 Place details: $details');
 
       if (details != null) {
         setState(() {
@@ -205,9 +211,29 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
             CameraUpdate.newLatLngBounds(bounds, 100),
           );
         }
+      } else {
+        // Details == null (DEMO mode hoặc API lỗi)
+        print('⚠️ Place details null - Using DEMO mode');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đã chọn địa điểm. (DEMO mode - marker sẽ hiện sau khi bật Places API)'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     } catch (e) {
       debugPrint("Error getting place details: $e");
+      // Vẫn hiển thị thông báo cho user biết đã chọn
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã chọn địa điểm: ${prediction.description}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -265,6 +291,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
               builder: (context) => TripMonitoringScreen(
                 tripDurationInSeconds: duration * 60,
                 tripId: tripState.trip.id,
+                trip: tripState.trip, // Truyền trip data
               ),
             ),
           );
@@ -325,6 +352,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
             top: 50,
             left: 15,
             child: FloatingActionButton(
+              heroTag: 'fab_trip_setup_back', // Unique hero tag
               mini: true,
               onPressed: () => Navigator.of(context).pop(),
               backgroundColor: Colors.white,
@@ -337,6 +365,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
             top: 50,
             right: 15,
             child: FloatingActionButton(
+              heroTag: 'fab_trip_setup_location', // Unique hero tag
               mini: true,
               onPressed: _getCurrentLocation,
               backgroundColor: Colors.white,
@@ -345,11 +374,13 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
           ),
 
           // PHẦN 2: Form nhập liệu (DraggableScrollableSheet)
-          DraggableScrollableSheet(
-            initialChildSize: 0.45,
-            minChildSize: 0.35,
-            maxChildSize: 0.7,
-            builder: (BuildContext context, ScrollController scrollController) {
+          IgnorePointer(
+            ignoring: _showPredictions,  // ← Disable pointer events khi predictions hiển thị
+            child: DraggableScrollableSheet(
+              initialChildSize: 0.45,
+              minChildSize: 0.35,
+              maxChildSize: 0.7,
+              builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 decoration: const BoxDecoration(
                   color: Colors.white,
@@ -506,6 +537,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
               );
             },
           ),
+          ),  // ← Đóng IgnorePointer
 
           // Predictions overlay
           if (_showPredictions)
@@ -514,32 +546,42 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _showPredictions = false;
-                    _searchFocusNode.unfocus();
-                  });
-                },
-                child: Container(
-                  color: Colors.black.withOpacity(0.3),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 120), // Space for AppBar
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        constraints: const BoxConstraints(maxHeight: 300),
+              child: Stack(
+                children: [
+                  // Background overlay - tap to close
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showPredictions = false;
+                          _searchFocusNode.unfocus();
+                        });
+                      },
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.3),
+                      ),
+                    ),
+                  ),
+                  // Predictions list
+                  Positioned(
+                    top: 120,
+                    left: 20,
+                    right: 20,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      constraints: const BoxConstraints(maxHeight: 300),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
                         child: ListView.separated(
                           shrinkWrap: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -547,24 +589,53 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
                           separatorBuilder: (context, index) => const Divider(height: 1),
                           itemBuilder: (context, index) {
                             final prediction = _predictions[index];
-                            return ListTile(
-                              leading: const Icon(Icons.location_on, color: Colors.teal),
-                              title: Text(
-                                prediction.mainText,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                            return GestureDetector(
+                              onTap: () {
+                                print('🔵 GestureDetector tapped: ${prediction.mainText}');
+                                _onPlaceSelected(prediction);
+                              },
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: Container(
+                                  color: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.location_on, color: Colors.teal, size: 24),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              prediction.mainText,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              prediction.secondaryText,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              subtitle: Text(
-                                prediction.secondaryText,
-                                style: const TextStyle(fontSize: 12, color: Colors.grey),
-                              ),
-                              onTap: () => _onPlaceSelected(prediction),
                             );
                           },
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
         ],
