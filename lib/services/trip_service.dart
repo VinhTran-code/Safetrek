@@ -50,10 +50,13 @@ class TripService {
   }
 
   /// Gửi cảnh báo khẩn cấp
+  /// Hỗ trợ 2 trường hợp:
+  /// 1. Panic từ trang chủ: Không có location (latitude, longitude = null)
+  /// 2. Panic từ chuyến đi: Có location
   Future<void> sendPanic({
-    required double latitude,
-    required double longitude,
-    required int batteryLevel,
+    double? latitude,
+    double? longitude,
+    int? batteryLevel,
   }) async {
     final request = PanicRequest(
       latitude: latitude,
@@ -63,7 +66,7 @@ class TripService {
 
     await repository.sendPanic(request);
 
-    // Refresh trip state
+    // Refresh trip state nếu đang có trip active
     await refreshCurrentTrip();
   }
 
@@ -87,14 +90,11 @@ class TripService {
 
   /// Kết thúc chuyến đi bằng PIN
   Future<String> endTrip({
+    required int tripId,
     required String pinCode,
   }) async {
-    if (_currentTrip == null) {
-      throw Exception('Không có chuyến đi đang hoạt động');
-    }
-
     final request = EndTripRequest(
-      tripId: _currentTrip!.id,
+      tripId: tripId,
       pinCode: pinCode,
     );
 
@@ -102,7 +102,33 @@ class TripService {
 
     _stopTimers();
     _currentTrip = null;
-    onTripStateChanged?.call(_currentTrip!);
+
+    return result['message'] as String;
+  }
+
+  /// Kết thúc chuyến đi bằng PIN với location và battery level
+  /// Backend sẽ tự động xử lý:
+  /// - Safety PIN: Kết thúc bình thường
+  /// - Duress PIN: Gửi duress alert với location và battery
+  Future<String> endTripWithLocation({
+    required int tripId,
+    required String pinCode,
+    double? latitude,
+    double? longitude,
+    int? batteryLevel,
+  }) async {
+    final request = EndTripWithLocationRequest(
+      tripId: tripId,
+      pinCode: pinCode,
+      latitude: latitude,
+      longitude: longitude,
+      batteryLevel: batteryLevel,
+    );
+
+    final result = await repository.endTripWithLocation(request);
+
+    _stopTimers();
+    _currentTrip = null;
 
     return result['message'] as String;
   }
