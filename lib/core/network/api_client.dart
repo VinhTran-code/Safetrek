@@ -24,7 +24,7 @@ class ApiClient {
     // Debug: Show which base URL is being used
     print('🌐 API Client initialized with Base URL: ${ApiConstants.baseUrl}');
 
-    // Interceptor để thêm token vào mọi request
+    // Interceptor để log request và response
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -32,9 +32,28 @@ class ApiClient {
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+
+          // Log request details
+          print('📤 REQUEST: ${options.method} ${options.baseUrl}${options.path}');
+          print('📝 Headers: ${options.headers}');
+          print('📦 Data: ${options.data}');
+
           return handler.next(options);
         },
+        onResponse: (response, handler) {
+          // Log response
+          print('✅ RESPONSE [${response.statusCode}]: ${response.requestOptions.path}');
+          print('📥 Data: ${response.data}');
+          return handler.next(response);
+        },
         onError: (error, handler) async {
+          // Log error details
+          print('❌ ERROR [${error.response?.statusCode}]: ${error.requestOptions.path}');
+          print('📍 URL: ${error.requestOptions.baseUrl}${error.requestOptions.path}');
+          print('📦 Request Data: ${error.requestOptions.data}');
+          print('📥 Response Data: ${error.response?.data}');
+          print('🔍 Error Message: ${error.message}');
+
           // Xử lý lỗi 401 (Unauthorized)
           if (error.response?.statusCode == 401) {
             // Clear token và user data

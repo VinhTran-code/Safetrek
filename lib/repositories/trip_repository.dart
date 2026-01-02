@@ -72,6 +72,28 @@ class TripRepository {
     }
   }
 
+  /// Kết thúc chuyến đi bằng PIN với location và battery level
+  /// Backend sẽ tự động xử lý:
+  /// - Safety PIN: Kết thúc bình thường
+  /// - Duress PIN: Gửi duress alert với location và battery
+  Future<Map<String, dynamic>> endTripWithLocation(EndTripWithLocationRequest request) async {
+    try {
+      final response = await apiClient.post(
+        ApiConstants.endTrip,
+        data: request.toJson(),
+      );
+
+      // API trả về: { "success": true, "message": "...", "data": { "trip_id": 1, "ended_at": "..." } }
+      return {
+        'message': response.data['message'],
+        'data': response.data['data'],
+      };
+    } catch (e) {
+      print('Lỗi khi kết thúc chuyến đi với location: $e');
+      rethrow;
+    }
+  }
+
   /// Hủy chuyến đi
   Future<void> cancelTrip(int tripId) async {
     try {

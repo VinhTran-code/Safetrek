@@ -96,10 +96,13 @@ class TripViewModel extends ChangeNotifier {
   }
 
   /// Gửi cảnh báo khẩn cấp
+  /// Hỗ trợ 2 trường hợp:
+  /// 1. Panic từ trang chủ: Không có location (latitude, longitude = null)
+  /// 2. Panic từ chuyến đi: Có location
   Future<void> sendPanic({
-    required double latitude,
-    required double longitude,
-    required int batteryLevel,
+    double? latitude,
+    double? longitude,
+    int? batteryLevel,
   }) async {
     try {
       await tripService.sendPanic(
@@ -119,6 +122,7 @@ class TripViewModel extends ChangeNotifier {
     } catch (e) {
       _state = TripError(message: _getErrorMessage(e));
       notifyListeners();
+      rethrow;
     }
   }
 
@@ -140,12 +144,41 @@ class TripViewModel extends ChangeNotifier {
   }
 
   /// Kết thúc chuyến đi bằng PIN
-  Future<void> endTrip({required String pinCode}) async {
+  Future<void> endTrip({required int tripId, required String pinCode}) async {
     _state = TripLoading();
     notifyListeners();
 
     try {
-      final message = await tripService.endTrip(pinCode: pinCode);
+      final message = await tripService.endTrip(tripId: tripId, pinCode: pinCode);
+      _state = TripEnded(message: message);
+    } catch (e) {
+      _state = TripError(message: _getErrorMessage(e));
+    }
+    notifyListeners();
+  }
+
+  /// Kết thúc chuyến đi bằng PIN với location và battery level
+  /// Backend sẽ tự động xử lý:
+  /// - Safety PIN: Kết thúc bình thường
+  /// - Duress PIN: Gửi duress alert với location và battery
+  Future<void> endTripWithLocation({
+    required int tripId,
+    required String pinCode,
+    double? latitude,
+    double? longitude,
+    int? batteryLevel,
+  }) async {
+    _state = TripLoading();
+    notifyListeners();
+
+    try {
+      final message = await tripService.endTripWithLocation(
+        tripId: tripId,
+        pinCode: pinCode,
+        latitude: latitude,
+        longitude: longitude,
+        batteryLevel: batteryLevel,
+      );
       _state = TripEnded(message: message);
     } catch (e) {
       _state = TripError(message: _getErrorMessage(e));

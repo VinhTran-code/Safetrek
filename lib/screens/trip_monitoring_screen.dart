@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:safetrek_app/screens/panic_alert_screen.dart';
 import 'package:safetrek_app/widgets/circular_timer_view.dart';
-import 'package:safetrek_app/utils/app_routes.dart';
 import 'package:safetrek_app/screens/submitpin.dart';
+import 'package:safetrek_app/screens/pin_timeout_screen.dart';
 import 'package:safetrek_app/screens/trip_view_model.dart';
 import 'package:safetrek_app/injection_container.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:safetrek_app/models/trip.dart';
 
 
 class TripMonitoringScreen extends StatefulWidget {
   final int tripDurationInSeconds;
   final int? tripId;
+  final Trip? trip; // Thêm trip data
 
   const TripMonitoringScreen({
     super.key,
     required this.tripDurationInSeconds,
     this.tripId,
+    this.trip, // Optional trip data
   });
 
   @override
@@ -29,6 +33,23 @@ class _TripMonitoringScreenState extends State<TripMonitoringScreen> {
   void initState() {
     super.initState();
     _tripViewModel = sl<TripViewModel>();
+  }
+
+  /// Xử lý khi hết thời gian - Hiển thị màn hình nhập PIN
+  void _handleTimerComplete() {
+    if (!mounted) return;
+
+    print('⏰ Timer complete - Chuyển sang màn hình nhập PIN');
+
+    // Chuyển sang màn hình PinTimeoutScreen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => PinTimeoutScreen(
+          tripId: widget.tripId,
+          timeoutSeconds: 60, // Đồng bộ với backend scheduler (chạy mỗi 1 phút)
+        ),
+      ),
+    );
   }
 
   Future<void> _handlePanicButton() async {
@@ -53,6 +74,19 @@ class _TripMonitoringScreenState extends State<TripMonitoringScreen> {
     );
 
     if (confirmed != true) return;
+
+    // LƯU THÔNG TIN TRIP TRƯỚC KHI GỌI API (để tránh bị mất dữ liệu)
+    // Ưu tiên sử dụng widget.trip nếu có, nếu không thì lấy từ ViewModel
+    final currentTrip = widget.trip ?? _tripViewModel.currentTrip;
+
+    print('🚨 TripMonitoringScreen - Panic button pressed');
+    print('   - widget.trip != null: ${widget.trip != null}');
+    print('   - currentTrip != null: ${currentTrip != null}');
+    if (currentTrip != null) {
+      print('   - trip.id: ${currentTrip.id}');
+      print('   - trip.destinationName: ${currentTrip.destinationName}');
+      print('   - trip.status: ${currentTrip.status}');
+    }
 
     // Show loading
     if (mounted) {
@@ -82,9 +116,16 @@ class _TripMonitoringScreenState extends State<TripMonitoringScreen> {
       // Đóng loading
       if (mounted) Navigator.pop(context);
 
-      // Chuyển đến màn hình panic alert
+      // Chuyển đến màn hình panic alert với thông tin chuyến đi
       if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.panicAlert);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PanicAlertScreen(
+              isInTrip: true,
+              tripData: currentTrip, // Sử dụng trip đã lưu từ trước
+            ),
+          ),
+        );
       }
     } catch (e) {
       // Đóng loading
@@ -133,7 +174,10 @@ class _TripMonitoringScreenState extends State<TripMonitoringScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             // Phần đồng hồ
-            CircularTimerView(duration: widget.tripDurationInSeconds),
+            CircularTimerView(
+              duration: widget.tripDurationInSeconds,
+              onTimerComplete: _handleTimerComplete,
+            ),
 
             // Phần thông tin
             Column(

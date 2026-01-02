@@ -3,7 +3,13 @@ import 'dart:math' as math;
 
 class CircularTimerView extends StatefulWidget {
   final int duration; // in seconds
-  const CircularTimerView({super.key, required this.duration});
+  final VoidCallback? onTimerComplete; // Callback khi hết giờ
+
+  const CircularTimerView({
+    super.key,
+    required this.duration,
+    this.onTimerComplete,
+  });
 
   @override
   State<CircularTimerView> createState() => _CircularTimerViewState();
@@ -19,6 +25,15 @@ class _CircularTimerViewState extends State<CircularTimerView> with TickerProvid
       vsync: this,
       duration: Duration(seconds: widget.duration),
     );
+
+    // Lắng nghe khi animation hoàn thành
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.dismissed) {
+        // Timer đã hết
+        widget.onTimerComplete?.call();
+      }
+    });
+
     _controller.reverse(from: 1.0);
   }
 

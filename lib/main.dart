@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
         AppRoutes.resetPassword: (context) => const ResetPasswordScreen(),
         AppRoutes.dashboard: (context) => const DashboardScreen(),
+        '/dashboard': (context) => const DashboardScreen(), // Thêm route name thay thế
         AppRoutes.panicAlert: (context) => const PanicAlertScreen(),
         AppRoutes.initialSetup: (context) => const InitialSetupWelcomeScreen(),
       },

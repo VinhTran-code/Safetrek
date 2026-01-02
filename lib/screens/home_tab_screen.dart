@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:safetrek_app/injection_container.dart';
+import 'package:safetrek_app/screens/panic_alert_screen.dart';
 import 'package:safetrek_app/screens/trip_setup_screen.dart';
-import 'package:safetrek_app/utils/app_routes.dart';
+import 'package:safetrek_app/screens/trip_view_model.dart';
 
 class HomeTabScreen extends StatelessWidget {
   const HomeTabScreen({super.key});
@@ -46,8 +48,48 @@ class HomeTabScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.panicAlert);
+                onPressed: () async {
+                  // Hiển thị loading
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(child: CircularProgressIndicator()),
+                  );
+
+                  try {
+                    // Gọi API panic KHÔNG có location (từ trang chủ)
+                    final tripViewModel = sl<TripViewModel>();
+                    await tripViewModel.sendPanic(
+                      // Không truyền latitude, longitude, batteryLevel
+                      // Backend sẽ hiểu đây là panic từ trang chủ
+                    );
+
+                    // Đóng loading
+                    if (context.mounted) Navigator.pop(context);
+
+                    // Chuyển đến màn hình panic alert
+                    if (context.mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PanicAlertScreen(isInTrip: false),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    // Đóng loading
+                    if (context.mounted) Navigator.pop(context);
+
+                    // Hiển thị lỗi
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Lỗi khi gửi cảnh báo: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
                 },
                 icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
                 label: const Text('NÚT HOẢNG LOẠN', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
