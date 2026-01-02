@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:safetrek_app/injection_container.dart';
-import 'package:safetrek_app/services/pin_service.dart';
 import 'package:safetrek_app/screens/trip_view_model.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:battery_plus/battery_plus.dart';
 
 class SubmitPinScreen extends StatefulWidget {
   final int? tripId;
@@ -19,13 +20,24 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  final PinService _pinService = sl<PinService>();
   late final TripViewModel _tripViewModel;
+  final Battery _battery = Battery();
 
   @override
   void initState() {
     super.initState();
     _tripViewModel = sl<TripViewModel>();
+  }
+
+  /// Lấy battery level
+  Future<int> _getBatteryLevel() async {
+    try {
+      final batteryLevel = await _battery.batteryLevel;
+      return batteryLevel;
+    } catch (e) {
+      print('⚠️ Không lấy được battery level: $e');
+      return 100; // Default
+    }
   }
 
   void _onNumberPressed(int number) {
@@ -50,55 +62,88 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
     });
 
     try {
-      // Nếu có tripId, gọi API end trip
-      if (widget.tripId != null) {
-        await _tripViewModel.endTrip(pinCode: enteredPin);
+      // Kiểm tra xem có trip_id hay không
+      if (widget.tripId == null) {
+        throw Exception('Không tìm thấy thông tin chuyến đi');
+      }
 
-        // Kiểm tra kết quả
-        if (_tripViewModel.state is TripEnded) {
-          final message = (_tripViewModel.state as TripEnded).message;
-          print('Kết thúc chuyến đi thành công: $message');
+      print('🔐 Validating PIN for trip_id: ${widget.tripId}');
+      print('🔑 Entered PIN: $enteredPin');
+
+      // Lấy vị trí và battery level trước khi gửi
+      Position? position;
+      int batteryLevel = await _getBatteryLevel();
+
+      try {
+        position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        ).timeout(const Duration(seconds: 5));
+
+        print('📍 Location: ${position.latitude}, ${position.longitude}');
+        print('🔋 Battery Level: $batteryLevel%');
+      } catch (e) {
+        print('⚠️ Không lấy được vị trí: $e');
+      }
+
+      // Gọi API endTrip với PIN, location và battery
+      // Backend sẽ TỰ ĐỘNG:
+      // - Nếu là Safety PIN -> Kết thúc bình thường
+      // - Nếu là Duress PIN -> Gửi duress log ẨM THẦM + giả vờ thành công
+      await _tripViewModel.endTripWithLocation(
+        tripId: widget.tripId!,
+        pinCode: enteredPin,
+        latitude: position?.latitude,
+        longitude: position?.longitude,
+        batteryLevel: batteryLevel,
+      );
+
+      // Kiểm tra kết quả
+      if (_tripViewModel.state is TripEnded) {
+        final message = (_tripViewModel.state as TripEnded).message;
+        print('✅ Kết thúc chuyến đi thành công: $message');
+
+        if (mounted) {
+          // LUÔN hiển thị thông báo thành công (để lừa kẻ tấn công)
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Chuyến đi đã kết thúc. Bạn đã an toàn!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          // Đợi 1 giây rồi pop về trang chủ
+          await Future.delayed(const Duration(seconds: 1));
 
           if (mounted) {
-            // Hiển thị thông báo thành công
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(message),
-                backgroundColor: Colors.green,
-              ),
-            );
-
             // Pop về trang chủ (loại bỏ tất cả màn hình trip)
             Navigator.of(context).popUntil((route) => route.isFirst);
           }
-        } else if (_tripViewModel.state is TripError) {
-          // Hiển thị lỗi
-          final error = (_tripViewModel.state as TripError).message;
-          throw Exception(error);
         }
-      } else {
-        // Nếu không có tripId, chỉ verify PIN (flow cũ)
-        final result = await _pinService.verifyTripPin(enteredPin);
-        final pinType = result['pin_type'] as String?;
-
-        if (pinType == 'safety') {
-          print('Xác thực PIN an toàn thành công!');
-          if (mounted) {
-            Navigator.pop(context, true);
-          }
-        } else if (pinType == 'duress') {
-          print('PIN ép buộc đã được nhập!');
-          if (mounted) {
-            // TODO: Xử lý cho duress PIN
-            Navigator.pop(context, true);
-          }
-        }
+      } else if (_tripViewModel.state is TripError) {
+        // Hiển thị lỗi
+        final error = (_tripViewModel.state as TripError).message;
+        throw Exception(error);
       }
     } catch (e) {
-      print('Xác thực PIN thất bại: $e');
+      print('❌ Xác thực PIN thất bại: $e');
+
+      // Parse error message from DioException
+      String errorMsg = 'Mã PIN không đúng. Vui lòng thử lại.';
+
+      if (e.toString().contains('400') || e.toString().contains('Bad Request')) {
+        errorMsg = 'Mã PIN không đúng hoặc chuyến đi không hợp lệ.';
+      } else if (e.toString().contains('422')) {
+        errorMsg = 'Dữ liệu không hợp lệ. Vui lòng thử lại.';
+      } else if (e.toString().contains('401')) {
+        errorMsg = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+      } else if (e.toString().contains('500')) {
+        errorMsg = 'Lỗi máy chủ. Vui lòng thử lại sau.';
+      }
+
       if (mounted) {
         setState(() {
-          _errorMessage = 'Mã PIN không đúng. Vui lòng thử lại.';
+          _errorMessage = errorMsg;
           _pin = '';
         });
       }
