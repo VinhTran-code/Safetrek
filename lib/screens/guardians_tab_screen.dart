@@ -3,6 +3,7 @@ import 'package:safetrek_app/injection_container.dart';
 import 'package:safetrek_app/models/guardian.dart';
 import 'package:safetrek_app/screens/auth_state.dart';
 import 'package:safetrek_app/screens/guardian_view_model.dart';
+import 'package:safetrek_app/utils/validation_helper.dart';
 
 // 1. Giữ nguyên là StatefulWidget
 class GuardiansTabScreen extends StatefulWidget {
@@ -408,7 +409,15 @@ class _AddGuardianModalState extends State<_AddGuardianModal> {
               TextFormField(
                 controller: _nameController,
                 decoration: _buildInputDecoration('Ví dụ: Nguyễn Văn A'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Vui lòng nhập tên' : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập tên người liên hệ';
+                  }
+                  if (value.length > 255) {
+                    return 'Tên tối đa 255 ký tự';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               const Text('Số điện thoại người bảo vệ', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -416,8 +425,20 @@ class _AddGuardianModalState extends State<_AddGuardianModal> {
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: _buildInputDecoration('Ví dụ: 0123456789'),
-                validator: (v) => (v == null || v.isEmpty) ? 'Vui lòng nhập số điện thoại' : null,
+                decoration: _buildInputDecoration('0xxxxxxxxx hoặc +84xxxxxxxxx'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập số điện thoại';
+                  }
+                  if (value.length > 20) {
+                    return 'Số điện thoại tối đa 20 ký tự';
+                  }
+                  // Validate format Việt Nam
+                  if (!ValidationHelper.isValidPhone(value)) {
+                    return 'Số điện thoại không hợp lệ';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 30),
               SizedBox(
