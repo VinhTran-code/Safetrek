@@ -78,6 +78,14 @@ class TripRepository {
   /// - Duress PIN: Gửi duress alert với location và battery
   Future<Map<String, dynamic>> endTripWithLocation(EndTripWithLocationRequest request) async {
     try {
+      // DEBUG: Check token before making request
+      final token = apiClient.prefs.getString('auth_token');
+      if (token == null || token.isEmpty) {
+        print('❌ CRITICAL: No auth token found before endTrip API call!');
+        throw Exception('Not authenticated. Please login again.');
+      }
+      print('🔑 Token exists before endTrip: ${token.substring(0, 20)}...');
+
       final response = await apiClient.post(
         ApiConstants.endTrip,
         data: request.toJson(),
