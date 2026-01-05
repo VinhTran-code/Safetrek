@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:safetrek_app/screens/trip_monitoring_screen.dart';
 import 'package:safetrek_app/screens/trip_view_model.dart';
 import 'package:safetrek_app/injection_container.dart';
+import 'package:safetrek_app/utils/validation_helper.dart';
 import '../services/google_places_service.dart';
 
 class TripSetupScreen extends StatefulWidget {
@@ -247,6 +248,7 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
   }
 
   void _startMonitoring() async {
+    // Validate destination
     if (_destinationName == null || _destinationName!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Vui lòng chọn điểm đến")),
@@ -255,9 +257,16 @@ class _TripSetupScreenState extends State<TripSetupScreen> {
     }
 
     final duration = int.tryParse(_durationController.text) ?? 0;
-    if (duration <= 0 || duration > 1440) {
+
+    // Sử dụng ValidationHelper để validate
+    String? error = ValidationHelper.validateStartTrip(
+      destinationName: _destinationName,
+      durationMinutes: duration,
+    );
+
+    if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vui lòng nhập thời gian hợp lệ (1-1440 phút)")),
+        SnackBar(content: Text(error)),
       );
       return;
     }
