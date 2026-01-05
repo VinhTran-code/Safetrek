@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:safetrek_app/injection_container.dart';
 import 'package:safetrek_app/services/pin_service.dart';
 import 'package:safetrek_app/screens/pin_setup_mode.dart';
+import 'package:safetrek_app/utils/validation_helper.dart';
 
 class ForcePinSetupScreen extends StatefulWidget {
   // Thêm các tham số để nhận dữ liệu từ màn hình trước
@@ -48,6 +49,27 @@ class _ForcePinSetupScreenState extends State<ForcePinSetupScreen> {
     });
 
     if (_newPin.length == _pinLength) {
+      // Validate PIN trước khi xử lý
+      String? validationError = ValidationHelper.validatePin(_newPin);
+      if (validationError != null) {
+        setState(() {
+          _errorMessage = validationError;
+          _newPin = '';
+        });
+        return;
+      }
+
+      // Nếu đang ở chế độ initialSetup, kiểm tra PIN không trùng với safety PIN
+      if (widget.mode == PinSetupMode.initialSetup && widget.safetyPin != null) {
+        if (_newPin == widget.safetyPin) {
+          setState(() {
+            _errorMessage = 'PIN bị ép buộc phải khác PIN an toàn';
+            _newPin = '';
+          });
+          return;
+        }
+      }
+
       _handlePinEntered(_newPin);
     }
   }
