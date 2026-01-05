@@ -3,6 +3,7 @@ import 'package:safetrek_app/injection_container.dart';
 import 'package:safetrek_app/services/pin_service.dart';
 import 'package:safetrek_app/screens/pin_setup_mode.dart';
 import 'package:safetrek_app/screens/force_pin.dart';
+import 'package:safetrek_app/utils/validation_helper.dart';
 
 class SafePinSetupScreen extends StatefulWidget {
   // Thêm mode để biết màn hình đang ở chế độ "thiết lập" hay "cập nhật"
@@ -44,6 +45,16 @@ class _SafePinSetupScreenState extends State<SafePinSetupScreen> {
     });
 
     if (_newPin.length == _pinLength) {
+      // Validate PIN trước khi xử lý
+      String? validationError = ValidationHelper.validatePin(_newPin);
+      if (validationError != null) {
+        setState(() {
+          _errorMessage = validationError;
+          _newPin = '';
+        });
+        return;
+      }
+
       // Gọi hàm xử lý tổng quát
       _handlePinEntered(_newPin);
     }
