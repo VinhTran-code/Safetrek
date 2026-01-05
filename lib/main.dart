@@ -15,6 +15,7 @@ import 'package:safetrek_app/screens/initial_setup/initial_setup_welcome_screen.
 import 'package:safetrek_app/injection_container.dart' as di;
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+import 'package:safetrek_app/core/navigation/global_navigator.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized(); // Đảm bảo Flutter framework được khởi tạo
   await di.init(); // GỌI HÀM KHỞI TẠO DEPENDENCY INJECTION CỦA CHÚNG TA
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: GlobalNavigator.navigatorKey, // Global navigator key
       title: 'SafeTrek', // Tên ứng dụng
       theme: appTheme, // Áp dụng theme của chúng ta
       initialRoute: AppRoutes.splash, // Ứng dụng sẽ bắt đầu từ Splash Screen
@@ -43,7 +45,6 @@ class MyApp extends StatelessWidget {
         AppRoutes.forgotPassword: (context) => const ForgotPasswordScreen(),
         AppRoutes.resetPassword: (context) => const ResetPasswordScreen(),
         AppRoutes.dashboard: (context) => const DashboardScreen(),
-        '/dashboard': (context) => const DashboardScreen(), // Thêm route name thay thế
         AppRoutes.panicAlert: (context) => const PanicAlertScreen(),
         AppRoutes.initialSetup: (context) => const InitialSetupWelcomeScreen(),
       },
