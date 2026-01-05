@@ -3,6 +3,7 @@ import 'package:safetrek_app/injection_container.dart';
 import 'package:safetrek_app/screens/trip_view_model.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:battery_plus/battery_plus.dart';
+import 'package:safetrek_app/utils/debug_helper.dart';
 
 class SubmitPinScreen extends StatefulWidget {
   final int? tripId;
@@ -62,6 +63,11 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
     });
 
     try {
+      // DEBUG: Check token before API call
+      print('🔍 ===== DEBUG: Checking token before endTrip =====');
+      await DebugHelper.testTokenWithAPI();
+      print('🔍 ================================================');
+
       // Kiểm tra xem có trip_id hay không
       if (widget.tripId == null) {
         throw Exception('Không tìm thấy thông tin chuyến đi');
@@ -130,22 +136,44 @@ class _SubmitPinScreenState extends State<SubmitPinScreen> {
 
       // Parse error message from DioException
       String errorMsg = 'Mã PIN không đúng. Vui lòng thử lại.';
+      bool needsLogout = false;
 
       if (e.toString().contains('400') || e.toString().contains('Bad Request')) {
         errorMsg = 'Mã PIN không đúng hoặc chuyến đi không hợp lệ.';
       } else if (e.toString().contains('422')) {
         errorMsg = 'Dữ liệu không hợp lệ. Vui lòng thử lại.';
-      } else if (e.toString().contains('401')) {
+      } else if (e.toString().contains('401') || e.toString().contains('Unauthenticated')) {
         errorMsg = 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.';
+        needsLogout = true;
       } else if (e.toString().contains('500')) {
         errorMsg = 'Lỗi máy chủ. Vui lòng thử lại sau.';
       }
 
       if (mounted) {
-        setState(() {
-          _errorMessage = errorMsg;
-          _pin = '';
-        });
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
+        // If 401 error, logout and redirect to login
+        if (needsLogout) {
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login',
+              (route) => false,
+            );
+          }
+        } else {
+          setState(() {
+            _errorMessage = errorMsg;
+            _pin = '';
+          });
+        }
       }
     } finally {
       if (mounted) {

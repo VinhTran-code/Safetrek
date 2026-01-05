@@ -8,6 +8,9 @@ class ApiClient {
   final Dio dio;
   final SharedPreferences prefs;
 
+  // Callback để handle 401 - redirect về login
+  Function()? onUnauthorized;
+
   ApiClient({required this.dio, required this.prefs}) {
     _setupInterceptors();
   }
@@ -29,37 +32,70 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final token = prefs.getString(ApiConstants.tokenKey);
-          if (token != null) {
+
+          // DEBUG: Check token existence and validity
+          if (token == null || token.isEmpty) {
+            print('❌ ERROR: No token found in SharedPreferences!');
+            print('🔍 Available keys: ${prefs.getKeys()}');
+          } else {
+            print('🔑 Token found: ${token.substring(0, token.length > 20 ? 20 : token.length)}...');
             options.headers['Authorization'] = 'Bearer $token';
           }
 
-          // Log request details
-          print('📤 REQUEST: ${options.method} ${options.baseUrl}${options.path}');
-          print('📝 Headers: ${options.headers}');
-          print('📦 Data: ${options.data}');
+          // Log request details với format rõ ràng
+          print('\n========================================');
+          print('📤 REQUEST');
+          print('   Method: ${options.method}');
+          print('   URL: ${options.baseUrl}${options.path}');
+          print('   Headers: ${options.headers}');
+          if (options.data != null) {
+            print('   Body: ${options.data}');
+          }
+          if (options.queryParameters.isNotEmpty) {
+            print('   Query: ${options.queryParameters}');
+          }
+          print('========================================\n');
 
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          // Log response
-          print('✅ RESPONSE [${response.statusCode}]: ${response.requestOptions.path}');
-          print('📥 Data: ${response.data}');
+          // Log response với format rõ ràng
+          print('\n========================================');
+          print('✅ RESPONSE');
+          print('   Status: ${response.statusCode}');
+          print('   Path: ${response.requestOptions.path}');
+          print('   Data: ${response.data}');
+          print('========================================\n');
           return handler.next(response);
         },
         onError: (error, handler) async {
-          // Log error details
-          print('❌ ERROR [${error.response?.statusCode}]: ${error.requestOptions.path}');
-          print('📍 URL: ${error.requestOptions.baseUrl}${error.requestOptions.path}');
-          print('📦 Request Data: ${error.requestOptions.data}');
-          print('📥 Response Data: ${error.response?.data}');
-          print('🔍 Error Message: ${error.message}');
+          // Log error details với format rõ ràng
+          print('\n========================================');
+          print('❌ ERROR');
+          print('   Status: ${error.response?.statusCode}');
+          print('   Method: ${error.requestOptions.method}');
+          print('   URL: ${error.requestOptions.baseUrl}${error.requestOptions.path}');
+          if (error.requestOptions.data != null) {
+            print('   Request Body: ${error.requestOptions.data}');
+          }
+          if (error.response?.data != null) {
+            print('   Response Data: ${error.response?.data}');
+          }
+          print('   Error Message: ${error.message}');
+          print('========================================\n');
 
-          // Xử lý lỗi 401 (Unauthorized)
+          // Xử lý lỗi 401 (Unauthorized - Session Expired)
           if (error.response?.statusCode == 401) {
             // Clear token và user data
             await prefs.remove(ApiConstants.tokenKey);
             await prefs.remove(ApiConstants.userKey);
-            // Có thể redirect về login screen ở đây
+            print('⚠️ Token cleared due to 401 error. User needs to login again.');
+
+            // Trigger callback để app redirect về login
+            if (onUnauthorized != null) {
+              print('🔄 Triggering onUnauthorized callback...');
+              onUnauthorized!();
+            }
           }
           return handler.next(error);
         },

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:safetrek_app/core/constants/api_constants.dart';
 import 'package:safetrek_app/core/network/api_client.dart';
+import 'package:safetrek_app/core/navigation/global_navigator.dart';
 import 'package:safetrek_app/services/auth_service.dart';
 import 'package:safetrek_app/services/pin_service.dart';
 import 'package:safetrek_app/services/trip_service.dart';
@@ -35,7 +36,17 @@ Future<void> init() async {
 
   // API Client
   sl.registerLazySingleton<ApiClient>(
-    () => ApiClient(dio: sl(), prefs: sl()),
+    () {
+      final apiClient = ApiClient(dio: sl(), prefs: sl());
+
+      // Setup callback để handle session expired (401)
+      apiClient.onUnauthorized = () {
+        print('🔄 ApiClient: Session expired detected, redirecting to login...');
+        GlobalNavigator.handleSessionExpired();
+      };
+
+      return apiClient;
+    },
   );
 
   //! Features - Auth
