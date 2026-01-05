@@ -17,6 +17,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  // 1. Thêm biến để lưu lỗi từ server
+  String? _serverError;
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -25,6 +28,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login(AuthViewModel viewModel) async {
+    // Xóa lỗi cũ khi người dùng thử đăng nhập lại
+    setState(() {
+      _serverError = null;
+    });
+
     if (_formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus(); // Đóng bàn phím
       await viewModel.performLogin(
@@ -42,21 +50,20 @@ class _LoginScreenState extends State<LoginScreen> {
           if (viewModel.state is AuthSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               final user = (viewModel.state as AuthSuccess).user;
-              // Kiểm tra xem user đã setup PIN chưa
               if (!user.isPinSetup) {
-                // Chưa setup PIN -> đến màn hình initial setup
                 Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initialSetup, (route) => false);
               } else {
-                // Đã setup PIN -> vào dashboard
                 Navigator.pushNamedAndRemoveUntil(context, AppRoutes.dashboard, (route) => false);
               }
               viewModel.resetState();
             });
           } else if (viewModel.state is AuthError) {
+            // 2. Thay vì hiển thị SnackBar, cập nhật biến lỗi
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text((viewModel.state as AuthError).message)),
-              );
+              setState(() {
+                // Lấy thông báo lỗi từ server và gán vào biến
+                _serverError = (viewModel.state as AuthError).message;
+              });
               viewModel.resetState();
             });
           }
@@ -87,12 +94,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
+                      // 3. Sử dụng biến lỗi để hiển thị dưới ô nhập liệu
+                      decoration: InputDecoration(
                         labelText: 'Số điện thoại',
                         hintText: '+84123456789',
-                        prefixIcon: Icon(Icons.phone),
+                        prefixIcon: const Icon(Icons.phone),
+                        errorText: _serverError,
                       ),
                       validator: (value) {
+                        // Nếu có lỗi từ server thì không cần validate ở đây nữa
+                        if (_serverError != null) return null;
+
                         if (value == null || value.isEmpty) {
                           return 'Vui lòng nhập số điện thoại';
                         }
