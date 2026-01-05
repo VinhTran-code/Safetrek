@@ -143,6 +143,14 @@ class AuthService {
 
     await prefs.setString(ApiConstants.tokenKey, token);
     await prefs.setString(ApiConstants.userKey, json.encode(user.toJson()));
+
+    // DEBUG: Verify token was saved
+    final savedToken = prefs.getString(ApiConstants.tokenKey);
+    if (savedToken != null && savedToken == token) {
+      print('✅ Token saved successfully: ${token.substring(0, token.length > 20 ? 20 : token.length)}...');
+    } else {
+      print('❌ ERROR: Token was NOT saved correctly!');
+    }
   }
 
   // Xóa thông tin auth
