@@ -4,6 +4,7 @@ import 'package:safetrek_app/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_state.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+import 'package:safetrek_app/utils/validation_helper.dart';
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -113,6 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Vui lòng nhập tên đầy đủ';
                         }
+                        if (value.length > 255) {
+                          return 'Họ tên tối đa 255 ký tự';
+                        }
                         return null;
                       },
                     ),
@@ -124,17 +128,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       keyboardType: TextInputType.phone,
                       decoration: const InputDecoration(
                         labelText: 'Số điện thoại',
-                        hintText: '+84123456789',
+                        hintText: '0xxxxxxxxx hoặc +84xxxxxxxxx',
                         prefixIcon: Icon(Icons.phone),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập số điện thoại';
-                        }
-                        if (value.length < 10) {
-                          return 'Số điện thoại không hợp lệ';
-                        }
-                        return null;
+                        // Sử dụng ValidationHelper
+                        return ValidationHelper.validatePhone(value);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -149,12 +148,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         prefixIcon: Icon(Icons.email),
                       ),
                       validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Email không hợp lệ';
-                          }
-                        }
-                        return null;
+                        // Sử dụng ValidationHelper với required = false
+                        return ValidationHelper.validateEmail(value, required: false);
                       },
                     ),
                     const SizedBox(height: 16),
