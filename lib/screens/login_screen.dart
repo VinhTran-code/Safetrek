@@ -4,6 +4,7 @@ import 'package:safetrek_app/utils/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:safetrek_app/screens/auth_state.dart';
 import 'package:safetrek_app/screens/auth_view_model.dart';
+import 'package:safetrek_app/utils/validation_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -97,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // 3. Sử dụng biến lỗi để hiển thị dưới ô nhập liệu
                       decoration: InputDecoration(
                         labelText: 'Số điện thoại',
-                        hintText: '+84123456789',
+                        hintText: '0xxxxxxxxx hoặc +84xxxxxxxxx',
                         prefixIcon: const Icon(Icons.phone),
                         errorText: _serverError,
                       ),
@@ -105,13 +106,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Nếu có lỗi từ server thì không cần validate ở đây nữa
                         if (_serverError != null) return null;
 
-                        if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập số điện thoại';
-                        }
-                        if (value.length < 10) {
-                          return 'Số điện thoại không hợp lệ';
-                        }
-                        return null;
+                        // Sử dụng ValidationHelper
+                        return ValidationHelper.validatePhone(value);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -121,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       decoration: const InputDecoration(
                         labelText: 'Mật khẩu',
-                        hintText: 'Nhập mật khẩu của bạn',
+                        hintText: 'Nhập mật khẩu của bạn (tối thiểu 6 ký tự)',
                         prefixIcon: Icon(Icons.lock),
                       ),
                       validator: (value) {
