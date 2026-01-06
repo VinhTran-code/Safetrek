@@ -77,7 +77,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // Xử lý các trạng thái từ ViewModel
           if (viewModel.state is AuthSuccess) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initialSetup, (route) => false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.'),
+                  duration: Duration(seconds: 2),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              // Quay về màn hình đăng nhập thay vì chuyển đến initial setup
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
               viewModel.resetState();
             });
           } else if (viewModel.state is AuthError) {
