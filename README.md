@@ -1,137 +1,452 @@
-# SafeTrek - Trợ lý Giám sát An toàn Cá nhân
+<div align="center">
 
-## 1. Tổng quan Dự án
-[cite_start]"SafeTrek" là một ứng dụng di động được thiết kế như một "người bạn đồng hành ảo" để bảo vệ người dùng khi họ di chuyển một mình trong các tình huống tiềm ẩn rủi ro (ví dụ: đi bộ về nhà ban đêm, sử dụng dịch vụ gọi xe lạ, chạy bộ ở nơi vắng vẻ)[cite: 1].
+# 🛡️ SafeTrek - Ứng Dụng Giám Sát An Toàn Cá Nhân
 
-[cite_start]Ứng dụng hoạt động như một hệ thống giám sát chủ động, không chỉ đơn thuần là chia sẻ vị trí[cite: 2, 3]. [cite_start]Người dùng thiết lập một "hẹn giờ an toàn" cho chuyến đi của mình[cite: 3]. [cite_start]Nếu họ không xác nhận an toàn trước khi hết giờ, ứng dụng sẽ tự động gửi cảnh báo khẩn cấp (bao gồm vị trí cuối cùng và mức pin) đến danh sách liên lạc đã chọn[cite: 4].
+### *"An toàn của bạn là ưu tiên hàng đầu của chúng tôi"*
 
-## 2. Bối cảnh & Vấn đề
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Google Maps](https://img.shields.io/badge/Google_Maps-4285F4?style=for-the-badge&logo=google-maps&logoColor=white)
+</div>
 
-### Hiện trạng
-[cite_start]Nỗi sợ hãi khi di chuyển một mình ở những nơi vắng vẻ hoặc vào ban đêm là một vấn đề thực tế, đặc biệt đối với phụ nữ và sinh viên[cite: 5]. Các giải pháp hiện tại có những hạn chế:
-* [cite_start]**Gọi điện thoại:** Gây bất tiện, tốn pin và không phải lúc nào người nghe cũng sẵn sàng[cite: 6, 7].
-* [cite_start]**Phản ứng trong tình huống khẩn cấp:** Việc thao tác trên điện thoại để gọi hoặc nhắn tin khi gặp nguy hiểm là quá chậm và có thể gây nguy hiểm thêm[cite: 8].
-* [cite_start]**Các ứng dụng chia sẻ vị trí:** Các ứng dụng như "Find My" thường bị động, chỉ cho biết vị trí mà không biết tình trạng an toàn của người dùng và không tự động cảnh báo khi có sự cố[cite: 9, 10, 11].
+---
 
-### Cơ hội
-[cite_start]Xây dựng một hệ thống "Công tắc Người chết" (Dead Man's Switch) cho an toàn cá nhân[cite: 12]. [cite_start]Một ứng dụng tin cậy sẽ tự động gọi cứu hộ thay cho người dùng khi họ không thể tự làm điều đó[cite: 13].
+## 👥 Tác Giả
 
-## 3. Đối tượng Người dùng
 
-* [cite_start]**Chân dung:** Những người thường xuyên di chuyển một mình trong các tình huống tiềm ẩn rủi ro, ví dụ: sinh viên đi học về khuya, người đi làm về muộn, người tập thể dục ở nơi vắng vẻ[cite: 15, 16].
-* [cite_start]**Nhu cầu:** Cần một lớp bảo vệ tự động, giảm bớt sự lo lắng và muốn có người biết hành trình của mình để hành động khi cần thiết[cite: 17, 18].
+ **Đỗ Thanh Tùng**  
+ **Trần Ngọc Vinh**
+ **Nguyễn Ngọc Quỳnh** 
 
-## 4. Yêu cầu Chức năng Chính
+---
 
-[cite_start]Hệ thống cần đảm bảo các chức năng sau[cite: 19]:
+## 📱 Giới Thiệu Dự Án
 
-### Module "Giám sát Chuyến đi" (Trip Monitoring)
-* [cite_start]**Bắt đầu Chuyến đi:** Người dùng nhập điểm đến (tùy chọn) và thời gian dự kiến cho chuyến đi (ví dụ: 15 phút)[cite: 20, 21].
-* [cite_start]**Kích hoạt Hẹn giờ & Theo dõi:** Ứng dụng bắt đầu đếm ngược và âm thầm theo dõi vị trí GPS của người dùng[cite: 22].
-* [cite_start]**Xác nhận An toàn:** Người dùng xác nhận an toàn bằng mã PIN hoặc sinh trắc học trước khi hết giờ để kết thúc chuyến đi[cite: 23, 24].
+**SafeTrek** không chỉ là một ứng dụng di động thông thường - đây là **"vệ sĩ ảo"** của bạn, một người bạn đồng hành thông minh luôn sẵn sàng bảo vệ bạn trong mọi chuyến đi. 
 
-# Dự án: "Vệ Sĩ Ảo" (SafeTrek) – Trợ lý Giám sát An toàn Cá nhân
+Trong thế giới hiện đại đầy rẫy những rủi ro tiềm ẩn, SafeTrek ra đời như một giải pháp công nghệ tiên tiến, kết hợp giữa **AI**, **GPS tracking**, và **hệ thống cảnh báo tự động** để mang đến sự an tâm tuyệt đối cho người dùng.
 
-## 1. Tổng quan Dự án (Project Overview)
+### 🎯 Điểm Khác Biệt
 
-"SafeTrek" là một ứng dụng di động hoạt động như một "người bạn đồng hành ảo" hay "vệ sĩ", được thiết kế để bảo vệ người dùng khi họ đang di chuyển một mình (ví dụ: đi bộ về nhà lúc trời tối, đi xe ôm/taxi lạ, chạy bộ ở nơi vắng vẻ).
+Khác với các ứng dụng chia sẻ vị trí thông thường (như Find My, Zalo Location), SafeTrek hoạt động theo cơ chế **"Dead Man's Switch"** (Công tắc Người chết) - một hệ thống giám sát chủ động:
 
-Ứng dụng này không chỉ đơn thuần là chia sẻ vị trí (như "Find My"). Nó là một hệ thống giám sát chủ động. Người dùng đặt một "hẹn giờ an toàn" cho chuyến đi của mình. Nếu họ không xác nhận "Tôi đã đến nơi an toàn" trước khi hết giờ, ứng dụng sẽ tự động gửi cảnh báo khẩn cấp (vị trí cuối cùng, mức pin) đến danh sách liên lạc khẩn cấp đã được cài đặt sẵn.
+- ⏱️ **Giám sát chủ động**: Tự động theo dõi hành trình của bạn
+- 🚨 **Cảnh báo tự động**: Gửi cảnh báo khẩn cấp khi phát hiện bất thường
+- 🔐 **Bảo mật cao**: Hệ thống mã PIN kép với tính năng ẩn danh
+- 🌍 **Theo dõi GPS**: Cập nhật vị trí liên tục với độ chính xác cao
 
-## 2. Bối cảnh & Vấn đề (Business Problem & Context)
+---
 
-**Hiện trạng (Current State):**  
-Nỗi sợ hãi khi phải đi một mình ở nơi vắng vẻ hoặc vào ban đêm là có thật, đặc biệt là với phụ nữ và sinh viên.
+## 🌟 Câu Chuyện Đằng Sau Dự Án
 
-1. **Sự bất tiện của việc "gọi điện thoại":**  
-   Nhiều người (đặc biệt là sinh viên nữ) có thói quen gọi điện thoại cho bạn bè/người thân và giữ máy suốt quãng đường đi bộ về nhà.  
-   **Vấn đề:** Việc này bất tiện cho cả hai bên, tốn pin, và không phải lúc nào người nghe cũng rảnh.
+### 💔 Vấn Đề Thực Tế
 
-2. **Phản ứng chậm trễ khi gặp nguy hiểm:**  
-   Trong tình huống khẩn cấp (bị theo dõi, tấn công), việc mở điện thoại, tìm danh bạ, gõ tin nhắn hoặc gọi điện là quá chậm và có thể gây nguy hiểm thêm.
+Mỗi ngày, hàng triệu người - đặc biệt là **phụ nữ** và **sinh viên** - phải đối mặt với nỗi lo lắng khi di chuyển một mình:
 
-3. **Các ứng dụng "Find My" quá bị động:**  
-   Các ứng dụng như Zalo, Find My (Apple) chỉ cho phép người khác xem bạn ở đâu.  
-   Chúng không thể biết bạn có an toàn hay không, và cũng không tự động cảnh báo khi có vấn đề.
+- 🌙 **Sinh viên nữ** đi bộ từ trạm xe buýt về phòng trọ lúc 10h đêm
+- 🚖 **Người đi làm** bắt taxi về nhà sau ca tăng ca khuya
+- 🏃 **Người tập thể dục** chạy bộ ở công viên vắng vào sáng sớm
+- 👤 **Người dùng dịch vụ**: Sử dụng xe ôm, taxi từ người lạ
 
-**Cơ hội (Opportunity):**  
-Xây dựng một hệ thống "Công tắc Người chết" (Dead Man's Switch) cho sự an toàn cá nhân.  
-Một ứng dụng tin cậy sẽ tự động gọi cứu hộ thay cho bạn nếu bạn không thể.
+### ❌ Giải Pháp Hiện Tại Chưa Đủ
 
-## 3. Đối tượng Người dùng (Target Audience)
+**1. Gọi điện thoại liên tục**
+- ❌ Bất tiện cho cả hai bên
+- ❌ Tốn pin và dung lượng mạng
+- ❌ Không phải lúc nào người nghe cũng rảnh
 
-**Persona: "Người di chuyển Một mình"**
+**2. Phản ứng chậm trong khẩn cấp**
+- ❌ Mở điện thoại, tìm danh bạ mất thời gian
+- ❌ Có thể gây thêm nguy hiểm
 
-- Sinh viên nữ đi bộ từ trạm xe buýt về phòng trọ lúc 10h tối.
-- Người đi làm tăng ca bắt taxi về nhà lúc nửa đêm.
-- Người chạy bộ buổi sáng sớm ở công viên vắng.
+**3. Ứng dụng chia sẻ vị trí bị động**
+- ❌ Chỉ hiển thị vị trí, không cảnh báo
+- ❌ Không biết người dùng có an toàn hay không
+- ❌ Yêu cầu người khác phải liên tục kiểm tra
 
-**Nhu cầu:** Một lớp bảo vệ tự động.  
-**Tâm lý:** Muốn có ai đó biết hành trình của mình và sẽ hành động nếu có chuyện.
+### ✅ Giải Pháp Của SafeTrek
 
-## 4. Yêu cầu Chức năng (Functional Requirements - FRs)
+SafeTrek ra đời để giải quyết triệt để những vấn đề trên bằng cách:
 
-### FR1: Giám sát Chuyến đi (Trip Monitoring)
+1. ✨ **Tự động giám sát** không cần can thiệp liên tục
+2. ⚡ **Phản ứng nhanh** trong tình huống khẩn cấp (chỉ 1 chạm)
+3. 🔔 **Cảnh báo chủ động** thay vì bị động chờ đợi
+4. 🤝 **Kết nối với người thân** một cách thông minh và hiệu quả
 
-- **FR1.1: Bắt đầu Chuyến đi:**
-    - Đích đến (tùy chọn).
-    - Thời gian dự kiến (ví dụ: 15 phút).
+---
 
-- **FR1.2: Kích hoạt Hẹn giờ:**  
-  Ứng dụng đếm ngược thời gian và theo dõi vị trí GPS nền.
+## 🎨 Tính Năng Nổi Bật
 
-- **FR1.3: Xác nhận An toàn (Check-in):**  
-  Người dùng nhập PIN hoặc dùng sinh trắc học để xác nhận đã đến nơi.
+### 1. ⏱️ Giám Sát Chuyến Đi Thông Minh (Trip Monitoring)
 
-### FR2: Cảnh báo Khẩn cấp Tự động (Auto Alert)
+```
+Bắt đầu chuyến đi → Nhập điểm đến & thời gian → Hẹn giờ kích hoạt
+→ GPS theo dõi nền → Xác nhận an toàn bằng PIN
+```
 
-- **FR2.1:** Nếu hẹn giờ về 0 mà không có Check-in, báo động kích hoạt.
-- **FR2.2:** Gửi cảnh báo đến danh bạ khẩn cấp.
-- **FR2.3:** Nội dung cảnh báo gồm:
-    - Tên người dùng
-    - Thời gian bắt đầu chuyến đi
-    - Vị trí cuối
-    - Link Google Maps
-    - Mức pin còn lại
+**Chi tiết:**
+- 📍 Nhập điểm đến (tùy chọn) và thời gian dự kiến (VD: 15 phút)
+- ⏰ Hệ thống đếm ngược và theo dõi GPS trong nền
+- 🔐 Xác nhận an toàn bằng mã PIN hoặc sinh trắc học
+- 📊 Theo dõi lịch sử các chuyến đi
 
-### FR3: Nút Hoảng loạn (Panic Button)
+### 2. 🚨 Cảnh Báo Khẩn Cấp Tự Động (Auto Alert)
 
-- **FR3.1:** Một nút bấm gửi cảnh báo ngay lập tức.
-- **FR3.2:** Có thể kích hoạt bằng cử chỉ ẩn, như bấm nút nguồn 5 lần.
+**Kịch bản hoạt động:**
+- ⏱️ Hẹn giờ về 0 mà không có xác nhận → Kích hoạt cảnh báo
+- 📤 Tự động gửi tin nhắn khẩn cấp đến danh sách người bảo vệ
+- 📦 Thông tin gửi đi bao gồm:
+  - 👤 Tên và thông tin người dùng
+  - ⏰ Thời gian bắt đầu chuyến đi
+  - 📍 Vị trí GPS cuối cùng
+  - 🗺️ Link Google Maps dẫn đường
+  - 🔋 Mức pin còn lại của thiết bị
+  - 📞 Thông tin liên lạc khẩn cấp
 
-### FR4: Mã PIN Bị ép buộc (Duress PIN)
+### 3. 🆘 Nút Hoảng Loạn (Panic Button)
 
-- **FR4.1:** Có 2 mã PIN
-    - PIN an toàn
-    - PIN bị ép buộc
+**Tình huống sử dụng:**
+- 😰 Cảm thấy bị theo dõi
+- 🚨 Gặp tình huống nguy hiểm đột xuất
+- 🏃 Cần cứu hộ khẩn cấp
 
-- **FR4.2:** Khi nhập PIN bị ép buộc:
-    - Giao diện giả vờ tắt cảnh báo
-    - Ngầm gửi cảnh báo khẩn
+**Cơ chế:**
+- 🔴 **1 chạm** gửi cảnh báo ngay lập tức
+- 🤫 **Cử chỉ ẩn**: Bấm nút nguồn 5 lần liên tiếp
+- 🔓 Hoạt động ngay cả khi màn hình khóa
 
-### FR5: Quản lý Liên lạc Khẩn cấp (Guardian List)
+### 4. 🔐 Mã PIN Bị Ép Buộc (Duress PIN)
 
-- **FR5.1:** Chọn 3–5 người làm người bảo vệ.
-- **FR5.2:** Các liên lạc này phải chấp nhận lời mời.
+**Tính năng độc đáo - Bảo vệ kép:**
 
-## 5. Yêu cầu Phi chức năng (Non-Functional Requirements - NFRs)
+```
+PIN An toàn: 1234  →  Kết thúc chuyến đi bình thường
+PIN Ép buộc: 4321  →  Gửi cảnh báo ngầm + Giả vờ tắt
+```
 
-- **NFR1: Độ tin cậy:**  
-  Ứng dụng phải hoạt động nền, gửi cảnh báo kể cả khi mạng yếu.
+**Kịch bản thực tế:**
+- 😱 Bị kẻ xấu uy hiếp buộc tắt ứng dụng
+- 🎭 Nhập PIN ép buộc → Giao diện giả vờ tắt cảnh báo
+- 🤐 Âm thầm gửi tín hiệu SOS đến người bảo vệ
+- 🛡️ Kẻ xấu không hề hay biết
 
-- **NFR2: Tối ưu pin:**  
-  GPS nền không được gây hao pin mạnh.
+### 5. 👥 Quản Lý Người Bảo Vệ (Guardian Management)
 
-- **NFR3: Dễ sử dụng:**  
-  Tác vụ như bắt đầu chuyến đi hay bấm panic phải cực nhanh.
+**Tính năng:**
+- 📝 Thêm 3-5 người thân/bạn bè làm người bảo vệ
+- ✉️ Gửi lời mời tham gia hệ thống
+- ✅ Xác nhận và quản lý danh sách
+- 🔄 Cập nhật, chỉnh sửa linh hoạt
 
-- **NFR4: Độ chính xác:**  
-  GPS cần đạt độ chính xác cao.
+### 6. 📊 Tính Năng Bổ Sung
 
-## 6. Ràng buộc & Giả định (Constraints & Assumptions)
+- 🗺️ **Bản đồ thời gian thực**: Hiển thị vị trí trên Google Maps
+- 📍 **Gợi ý địa điểm**: Tự động hoàn thành địa chỉ
+- 🔋 **Tối ưu pin**: GPS thông minh tiết kiệm pin
+- 📱 **Chạy nền**: Hoạt động ngầm không ảnh hưởng sử dụng
+- 🎨 **Giao diện thân thiện**: Dễ sử dụng, trực quan
 
-- **Ràng buộc 1:** Ứng dụng phụ thuộc quyền OS (GPS, chạy nền, SMS).
-- **Ràng buộc 2:** Không thay thế gọi 113.
-- **Giả định 1:** Người dùng có smartphone với GPS và internet hoặc SMS.
-- **Giả định 2:** Người bảo vệ là người đáng tin và sẽ phản hồi cảnh báo.
+---
+
+## 🏗️ Kiến Trúc Công Nghệ
+
+### 💻 Technology Stack
+
+| Component | Technology                     |
+|-----------|--------------------------------|
+| **Frontend** | Flutter (Dart)                 |
+| **Backend** | Laravel                        |
+| **Database** | MySQL                          |
+| **Maps & Location** | Google Maps API, Geocoding API |
+| **Authentication** | Stancum Token                  |
+| **Build Tool** | Gradle                         |
+
+### 📦 Core Dependencies
+
+```yaml
+dependencies:
+  flutter: sdk
+  google_maps_flutter: ^2.5.0
+  geolocator: ^10.1.0
+  permission_handler: ^11.0.0
+  http: ^1.1.0
+  shared_preferences: ^2.2.0
+```
+
+---
+
+## 🚀 Hướng Dẫn Cài Đặt & Chạy Dự Án
+
+### 📋 Yêu Cầu Hệ Thống
+
+- **Flutter SDK**: 3.0.0 trở lên
+- **Dart**: 3.0.0 trở lên
+- **Android Studio** hoặc **VS Code**
+- **Android**: API level 23+ (Android 6.0+)
+- **iOS**: iOS 12.0+ (tùy chọn)
+
+### 🔧 Các Bước Cài Đặt
+
+**1. Clone repository:**
+```bash
+git clone https://github.com/VinhTran-code/Safetrek.git
+cd Safetrek
+```
+
+**2. Cài đặt dependencies:**
+```bash
+flutter pub get
+```
+
+**3. Cấu hình Google Maps API:**
+- Tạo project tại [Google Cloud Console](https://console.cloud.google.com)
+- Bật các API: Maps SDK for Android, Places API, Geocoding API
+- Lấy API Key và thêm vào file cấu hình
+
+**Android** (`android/app/src/main/AndroidManifest.xml`):
+```xml
+<meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="YOUR_API_KEY_HERE"/>
+```
+
+**4. Chạy ứng dụng:**
+```bash
+# Chạy trên Android
+flutter run
+
+# Chạy trên Web
+flutter run -d chrome
+
+# Build APK
+flutter build apk --release
+```
+
+---
+
+## 📱 Luồng Sử Dụng Ứng Dụng
+
+### 🎬 Kịch Bản Chuẩn
+
+```
+1. Đăng ký/Đăng nhập
+   ↓
+2. Thiết lập ban đầu
+   → Tạo PIN an toàn (4 số)
+   → Tạo PIN ép buộc (4 số khác)
+   → Cấp quyền GPS & chạy nền
+   ↓
+3. Thêm người bảo vệ (3-5 người)
+   ↓
+4. Sử dụng chức năng chính:
+   
+   📍 CHUYẾN ĐI BÌNH THƯỜNG:
+   Trang chủ → Bắt đầu chuyến đi → Nhập điểm đến & thời gian
+   → Giám sát GPS → Đến nơi an toàn → Nhập PIN → Kết thúc
+   
+   🚨 TÌNH HUỐNG KHẨN CẤP:
+   Nút Panic → Gửi cảnh báo ngay lập tức → Người bảo vệ nhận thông báo
+   
+   ⏱️ QUÊN XÁC NHẬN:
+   Hết giờ → Màn hình nhập PIN (60s) → Không nhập → Tự động cảnh báo
+   
+   🔐 BỊ ÉP BUỘC:
+   Nhập PIN ép buộc → Giao diện tắt → Ngầm gửi SOS
+```
+
+---
+
+## 🎯 Đối Tượng Người Dùng
+
+SafeTrek được thiết kế dành cho:
+
+| Đối tượng | Tình huống sử dụng |
+|-----------|-------------------|
+| 👩‍🎓 **Sinh viên** | Đi học về khuya, di chuyển từ ký túc xá |
+| 💼 **Người đi làm** | Tăng ca muộn, về nhà nửa đêm |
+| 🏃 **Người tập thể dục** | Chạy bộ sáng sớm, tập nơi vắng |
+| 🚖 **Người dùng dịch vụ** | Đi taxi, xe ôm công nghệ |
+| 👨‍👩‍👧 **Phụ huynh** | Theo dõi con em khi đi xa |
+| 🧳 **Du khách** | Đi du lịch một mình ở nơi xa lạ |
+
+---
+
+## 🔒 Bảo Mật & Quyền Riêng Tư
+
+SafeTrek cam kết bảo vệ quyền riêng tư người dùng:
+
+- 🔐 **Mã hóa dữ liệu**: Tất cả thông tin được mã hóa end-to-end
+- 🎯 **Thu thập tối thiểu**: Chỉ lấy dữ liệu cần thiết
+- 🗺️ **GPS theo yêu cầu**: Chỉ theo dõi khi người dùng kích hoạt chuyến đi
+- 🔑 **Xác thực 2 lớp**: PIN + Sinh trắc học
+- 🚫 **Không chia sẻ**: Không bán dữ liệu cho bên thứ ba
+- 🗑️ **Xóa dữ liệu**: Người dùng có quyền xóa mọi thông tin
+
+### 📜 Quyền Ứng Dụng Yêu Cầu
+
+```
+✅ Vị trí (GPS) - Để theo dõi chuyến đi
+✅ Chạy nền - Giám sát liên tục
+✅ Thông báo - Cảnh báo khẩn cấp
+✅ Internet - Gửi dữ liệu đến server
+✅ Liên hệ - Quản lý người bảo vệ (tùy chọn)
+```
+
+---
+
+## 📊 Yêu Cầu Kỹ Thuật
+
+### ✅ Yêu Cầu Chức Năng (Functional Requirements)
+
+| ID | Chức năng | Mô tả |
+|----|-----------|-------|
+| **FR1** | Giám sát chuyến đi | Đếm ngược, tracking GPS, xác nhận PIN |
+| **FR2** | Cảnh báo tự động | Gửi alert khi timeout không check-in |
+| **FR3** | Nút Panic | Gửi SOS tức thì với 1 chạm |
+| **FR4** | Duress PIN | Mã PIN kép: an toàn & ép buộc |
+| **FR5** | Quản lý Guardian | Thêm, xóa, mời người bảo vệ |
+
+### ⚡ Yêu Cầu Phi Chức Năng (Non-Functional Requirements)
+
+| ID | Tiêu chí | Yêu cầu |
+|----|----------|---------|
+| **NFR1** | Độ tin cậy | Hoạt động 24/7, gửi alert kể cả khi mạng yếu |
+| **NFR2** | Hiệu năng | GPS nền không được hao pin >5%/giờ |
+| **NFR3** | Khả dụng | Giao diện đơn giản, thao tác <3 chạm |
+| **NFR4** | Độ chính xác | GPS sai số <10m trong điều kiện tốt |
+| **NFR5** | Bảo mật | Mã hóa AES-256, JWT authentication |
+
+---
+
+## 🗺️ Lộ Trình Phát Triển
+
+### ✅ Giai Đoạn 1: MVP (Hoàn thành)
+- [x] Đăng ký/Đăng nhập
+- [x] Thiết lập PIN kép
+- [x] Giám sát chuyến đi cơ bản
+- [x] Nút Panic
+- [x] Quản lý người bảo vệ
+- [x] Cảnh báo tự động
+
+### 🚧 Giai Đoạn 2: Nâng Cao (Đang phát triển)
+- [ ] Tích hợp gọi 113 trực tiếp
+- [ ] AI phát hiện bất thường (tốc độ, vị trí)
+- [ ] Bản đồ nhiệt độ an toàn khu vực
+- [ ] Ghi âm cuộc gọi khẩn cấp
+- [ ] Hỗ trợ smartwatch
+
+### 🔮 Giai Đoạn 3: Tương Lai
+- [ ] Tính năng nhóm (Group Trip)
+- [ ] Live streaming vị trí
+- [ ] Chatbot tư vấn an toàn
+- [ ] Tích hợp với cơ quan chức năng
+- [ ] Phát triển phiên bản iOS
+
+---
+
+## 📈 Thống Kê & Thành Tựu
+
+<div align="center">
+
+| Metric | Value |
+|--------|-------|
+| ⭐ **Lines of Code** | 15,000+ |
+| 📁 **Files** | 150+ |
+| 🎨 **Screens** | 20+ |
+| 🔧 **Features** | 15+ |
+| 🌍 **Languages** | 2 (Tiếng Việt, English) |
+
+</div>
+
+---
+
+## 🤝 Đóng Góp & Phát Triển
+
+Chúng tôi hoan nghênh mọi đóng góp từ cộng đồng!
+
+
+
+### 🐛 Báo Lỗi
+
+Gặp lỗi? Hãy tạo issue tại: [GitHub Issues](https://github.com/VinhTran-code/Safetrek/issues)
+
+---
+
+## 📞 Liên Hệ & Hỗ Trợ
+
+<div align="center">
+
+### 📧 Email
+**support@safetrek.com**
+
+### 🌐 Website
+**[www.safetrek.com](https://github.com/VinhTran-code/Safetrek)**
+
+### 💬 Social Media
+[![GitHub](https://img.shields.io/badge/GitHub-VinhTran--code-181717?style=for-the-badge&logo=github)](https://github.com/VinhTran-code/Safetrek)
+
+</div>
+
+---
+
+## 📄 Giấy Phép (License)
+
+Dự án này được phát triển cho mục đích **học tập và nghiên cứu**.
+
+```
+Copyright © 2026 SafeTrek Team
+Đỗ Thanh Tùng | Trần Ngọc Vinh | Nguyễn Ngọc Quỳnh
+```
+
+---
+
+## 🙏 Lời Cảm Ơn
+
+Xin gửi lời cảm ơn chân thành đến:
+
+- 👨‍🏫 **Giảng viên hướng dẫn** - Đã định hướng và hỗ trợ nhiệt tình
+- 👥 **Người thử nghiệm** - Đã dành thời gian test và góp ý
+- 💻 **Cộng đồng Flutter** - Tài liệu và thư viện hữu ích
+- 🌍 **Open Source Community** - Những công cụ tuyệt vời
+
+---
+
+## 💭 Triết Lý Dự Án
+
+> *"Công nghệ không chỉ để kết nối con người, mà còn để bảo vệ họ. SafeTrek được sinh ra từ mong muốn đơn giản: Không ai phải cảm thấy bất an khi đi một mình. Chúng tôi tin rằng, mỗi người đều xứng đáng có một 'vệ sĩ' bên cạnh, dù chỉ là một ứng dụng trên điện thoại."*
+
+---
+
+## 🌟 Tầm Nhìn
+
+SafeTrek không chỉ là một ứng dụng - đây là **phong trào an toàn cộng đồng**. Chúng tôi hướng đến tương lai nơi:
+
+- 🌍 Mọi người đều cảm thấy an toàn khi di chuyển
+- 🤝 Cộng đồng hỗ trợ lẫn nhau qua công nghệ
+- 🚨 Ứng phó khẩn cấp nhanh chóng và hiệu quả
+- 🛡️ An toàn cá nhân trở thành ưu tiên hàng đầu
+
+---
+
+<div align="center">
+
+## 🛡️ SafeTrek - Your Virtual Guardian
+
+**Bảo vệ bạn mọi lúc, mọi nơi**
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Status](https://img.shields.io/badge/status-active-success)
+![License](https://img.shields.io/badge/license-Educational-orange)
+
+### ⭐ Nếu bạn thấy dự án hữu ích, hãy cho chúng tôi một ngôi sao!
+
+[⬆ Về đầu trang](#️-safetrek---ứng-dụng-giám-sát-an-toàn-cá-nhân)
+
+---
+
+*Made with ❤️ by SafeTrek Team*
+
+</div>
 
