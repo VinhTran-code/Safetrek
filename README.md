@@ -380,9 +380,6 @@ Gặp lỗi? Hãy tạo issue tại: [GitHub Issues](https://github.com/VinhTran
 ### 📧 Email
 **support@safetrek.com**
 
-### 💬 Social Media
-[![GitHub](https://img.shields.io/badge/GitHub-VinhTran--code-181717?style=for-the-badge&logo=github)](https://github.com/VinhTran-code/Safetrek)
-
 </div>
 
 ---
