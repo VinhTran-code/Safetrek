@@ -15,7 +15,6 @@
 
 ## 👥 Tác Giả
 
-
  **Đỗ Thanh Tùng**  
  **Trần Ngọc Vinh**
  **Nguyễn Ngọc Quỳnh** 
@@ -380,9 +379,6 @@ Gặp lỗi? Hãy tạo issue tại: [GitHub Issues](https://github.com/VinhTran
 
 ### 📧 Email
 **support@safetrek.com**
-
-### 🌐 Website
-**[www.safetrek.com](https://github.com/VinhTran-code/Safetrek)**
 
 ### 💬 Social Media
 [![GitHub](https://img.shields.io/badge/GitHub-VinhTran--code-181717?style=for-the-badge&logo=github)](https://github.com/VinhTran-code/Safetrek)
