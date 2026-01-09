@@ -194,6 +194,29 @@ class AuthService {
     return 'Có lỗi xảy ra: ${error.message}';
   }
 
+  // Đổi mật khẩu
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    try {
+      final response = await apiClient.post(
+        ApiConstants.changePassword,
+        data: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+          'new_password_confirmation': newPasswordConfirmation,
+        },
+      );
+
+      print('✅ Change password success: ${response.data}');
+    } on DioException catch (e) {
+      print('❌ Change password error: ${e.response?.data}');
+      throw _handleError(e);
+    }
+  }
+
   // Các hàm cũ (giữ lại để tương thích)
   Future<void> forgotPassword(String email) async {
     // TODO: Implement khi có API
