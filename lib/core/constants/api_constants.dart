@@ -34,6 +34,7 @@ class ApiConstants {
   static const String login = '/login';
   static const String logout = '/logout';
   static const String me = '/me';
+  static const String changePassword = '/change-password';
   static const String setupPins = '/setup-pins';
   static const String updateSafetyPin = '/update-safety-pin';
   static const String updateDuressPin = '/update-duress-pin';
